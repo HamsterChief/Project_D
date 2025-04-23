@@ -1,17 +1,28 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebaseConfig';
 
 const LoginScreen = ({ navigation }: any) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    // Simpel login voorbeeld
-    if (username === 'a' && password === 'a') {
-      // Als inloggen succesvol is, navigeer naar de agenda
+  // const handleLogin = () => {
+  //   // Simpel login voorbeeld
+  //   if (username === 'a' && password === 'a') {
+  //     // Als inloggen succesvol is, navigeer naar de agenda
+  //     navigation.navigate('Agenda');
+  //   } else {
+  //     alert('Verkeerde inloggegevens!');
+  //   }
+  // };
+
+  const handleLogin = async () => {
+    try {
+      await signInWithEmailAndPassword(auth, username, password); 
       navigation.navigate('Agenda');
-    } else {
-      alert('Verkeerde inloggegevens!');
+    } catch (error: any) {
+      alert(error.message);
     }
   };
 
