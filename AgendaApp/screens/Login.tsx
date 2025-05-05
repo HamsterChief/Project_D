@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, ImageBackground } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
+import { loginStyles as styles} from '../styles/loginstyles';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -24,76 +25,85 @@ const LoginScreen = () => {
     }
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      navigation.navigate('Agenda');
-    } catch (error: any) {
-      console.log('Login error:', error);
+      const response = await fetch('http://localhost:5133/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      // Specifieke Firebase foutcodes
-      if (error.code === 'auth/user-not-found') {
-        Alert.alert('Gebruiker niet gevonden', 'Er bestaat geen account met dit e-mailadres.');
-      } else if (error.code === 'auth/wrong-password') {
-        Alert.alert('Wachtwoord onjuist', 'Het wachtwoord dat je hebt ingevoerd is niet correct.');
-      } else if (error.code === 'auth/invalid-email') {
-        Alert.alert('Ongeldig e-mailadres', 'Het ingevoerde e-mailadres is ongeldig.');
+      if (response.ok) {
+        Alert.alert('Succesvol ingelogd', 'Welkom terug!');
+        navigation.navigate('Agenda');
       } else {
-        Alert.alert('Inloggen mislukt', 'Er ging iets fout. Probeer opnieuw.');
+        const message = await response.text();
+        Alert.alert('Login mislukt', message);
       }
+    } catch (error) {
+      console.error('Login error:', error);
+      Alert.alert('Fout', 'Kon geen verbinding maken met de server.');
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Log in</Text>
-      <TextInput
-        placeholder="E-mail"
-        value={email}
-        onChangeText={setEmail}
-        style={styles.input}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-      <TextInput
-        placeholder="Wachtwoord"
-        value={password}
-        onChangeText={setPassword}
-        style={styles.input}
-        secureTextEntry
-      />
-      <Button title="Inloggen" onPress={handleLogin} />
-      <Text style={styles.registerLink} onPress={() => navigation.navigate('Register')}>
-        Geen account? Registreer hier
-      </Text>
+    <View style={styles.wrapper}>
+      <ImageBackground source={require('../assets/p.jpg')} // Vervang dit door het pad naar je afbeelding
+        style={styles.wrapper}
+      ></ImageBackground>
+      <View style={styles.container}>
+        <Text style={styles.title}>Log in</Text>
+        <TextInput
+          placeholder="E-mail"
+          value={email}
+          onChangeText={setEmail}
+          style={styles.input}
+          autoCapitalize="none"
+          keyboardType="email-address"
+        />
+        <TextInput
+          placeholder="Wachtwoord"
+          value={password}
+          onChangeText={setPassword}
+          style={styles.input}
+          secureTextEntry
+        />
+        <Button title="Inloggen" onPress={handleLogin} />
+        <Text style={styles.registerLink} onPress={() => navigation.navigate('Register')}>
+          Geen account? Registreer hier
+        </Text>
+      </View>
     </View>
+    
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'center',
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 20,
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-  },
-  registerLink: {
-    marginTop: 16,
-    textAlign: 'center',
-    color: '#007BFF',
-    textDecorationLine: 'underline',
-  },
-});
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     padding: 20,
+//     justifyContent: 'center',
+//     backgroundColor: '#fff',
+//   },
+//   title: {
+//     fontSize: 24,
+//     marginBottom: 20,
+//     textAlign: 'center',
+//     fontWeight: 'bold',
+//   },
+//   input: {
+//     borderWidth: 1,
+//     borderColor: '#ccc',
+//     borderRadius: 8,
+//     padding: 12,
+//     marginBottom: 16,
+//   },
+//   registerLink: {
+//     marginTop: 16,
+//     textAlign: 'center',
+//     color: '#007BFF',
+//     textDecorationLine: 'underline',
+//   },
+// });
 
 export default LoginScreen;

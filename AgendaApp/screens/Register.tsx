@@ -15,13 +15,30 @@ const RegisterScreen: React.FC = () => {
   const [password, setPassword] = useState('');
 
   const handleRegister = async () => {
+    if (!email || !password) {
+      Alert.alert('Fout', 'Vul zowel e-mail als wachtwoord in.');
+      return;
+    }
+
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      Alert.alert('Welkom!', `Gebruiker geregistreerd: ${user.email}`);
-      navigation.navigate('Login');
-    } catch (error: any) {
-      Alert.alert('Registratie mislukt', error.message);
+      const response = await fetch('http://localhost:5133/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        Alert.alert('Succes', 'Registratie gelukt!');
+        navigation.navigate('Login');
+      } else {
+        const error = await response.text();
+        Alert.alert('Registratie mislukt', error);
+      }
+    } catch (err) {
+      console.error('Error tijdens registratie:', err);
+      Alert.alert('Fout', 'Er is iets misgegaan bij het verbinden met de server.');
     }
   };
 
