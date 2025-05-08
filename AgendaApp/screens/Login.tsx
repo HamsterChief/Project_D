@@ -4,11 +4,13 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
 import { loginStyles as styles} from '../styles/loginstyles';
+import { TouchableOpacity } from 'react-native';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isPressed, setIsPressed] = useState(false);
 
   const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
   const validatePassword = (password: string) => password.length >= 6;
@@ -47,14 +49,18 @@ const LoginScreen = () => {
   };
 
   return (
-    <View style={styles.wrapper}>
-      <ImageBackground source={require('../assets/p.jpg')} // Vervang dit door het pad naar je afbeelding
-        style={styles.wrapper}
-      ></ImageBackground>
+    <ImageBackground
+      source={require('../assets/login.png')} // Path to your image
+      style={styles.background}
+      resizeMode="cover" // Or 'contain', depending on your design
+    >
       <View style={styles.container}>
-        <Text style={styles.title}>Log in</Text>
+
+        <Text style={styles.title}>Inlogscherm</Text>
+
         <TextInput
           placeholder="E-mail"
+          placeholderTextColor='#909090'
           value={email}
           onChangeText={setEmail}
           style={styles.input}
@@ -63,18 +69,28 @@ const LoginScreen = () => {
         />
         <TextInput
           placeholder="Wachtwoord"
+          placeholderTextColor='#909090'
           value={password}
           onChangeText={setPassword}
           style={styles.input}
           secureTextEntry
         />
-        <Button title="Inloggen" onPress={handleLogin} />
+
+        <TouchableOpacity
+          style={[styles.button, isPressed && styles.hoveredButton]}
+          onPress={handleLogin}
+          onPressIn={() => setIsPressed(true)}
+          onPressOut={() => setIsPressed(false)}
+        >
+          <Text style={styles.buttonText}>INLOGGEN</Text>
+        </TouchableOpacity>
+
         <Text style={styles.registerLink} onPress={() => navigation.navigate('Register')}>
           Geen account? Registreer hier
         </Text>
+
       </View>
-    </View>
-    
+    </ImageBackground>
   );
 };
 

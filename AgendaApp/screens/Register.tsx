@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { ImageBackground, View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { useNavigation } from '@react-navigation/native';
+import { registerstyles as styles} from '../styles/registerstyles';
 
 type RegisterScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Register'>;
 
@@ -43,48 +44,47 @@ const RegisterScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Registreer</Text>
-      <TextInput
-        placeholder="E-mail"
-        value={email}
-        onChangeText={setEmail}
-        style={styles.input}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        placeholder="Wachtwoord"
-        value={password}
-        onChangeText={setPassword}
-        style={styles.input}
-        secureTextEntry
-      />
-      <Button title="Registreren" onPress={handleRegister} />
-    </View>
+    <ImageBackground
+      source={require('../assets/login.png')} // Use same background image as login screen
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <View style={styles.container}>
+        <Text style={styles.title}>Registreer</Text>
+
+        <TextInput
+          placeholder="E-mail"
+          placeholderTextColor='#909090'
+          value={email}
+          onChangeText={setEmail}
+          style={styles.input}
+          autoCapitalize="none"
+          keyboardType="email-address"
+        />
+        <TextInput
+          placeholder="Wachtwoord"
+          placeholderTextColor='#909090'
+          value={password}
+          onChangeText={setPassword}
+          style={styles.input}
+          secureTextEntry
+        />
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleRegister}
+        >
+          <Text style={styles.buttonText}>Registreren</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.registerLink} onPress={() => navigation.navigate('Login')}>
+          Al een account? Inloggen
+        </Text>
+      </View>
+    </ImageBackground>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-  },
-});
+
 
 export default RegisterScreen;
