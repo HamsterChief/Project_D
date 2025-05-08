@@ -1,25 +1,20 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 
 const LoginScreen = ({ navigation }: any) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-  // const handleLogin = () => {
-  //   // Simpel login voorbeeld
-  //   if (username === 'a' && password === 'a') {
-  //     // Als inloggen succesvol is, navigeer naar de agenda
-  //     navigation.navigate('Agenda');
-  //   } else {
-  //     alert('Verkeerde inloggegevens!');
-  //   }
-  // };
+  const togglePasswordVisibility = () => {
+    setIsPasswordVisible(!isPasswordVisible);
+  };
 
   const handleLogin = async () => {
     try {
-      await signInWithEmailAndPassword(auth, username, password); 
+      await signInWithEmailAndPassword(auth, username, password);
       navigation.navigate('Agenda');
     } catch (error: any) {
       alert(error.message);
@@ -35,13 +30,18 @@ const LoginScreen = ({ navigation }: any) => {
         value={username}
         onChangeText={setUsername}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Wachtwoord"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Wachtwoord"
+          secureTextEntry={!isPasswordVisible}
+          value={password}
+          onChangeText={setPassword}
+        />
+        <TouchableOpacity onPress={togglePasswordVisibility} style={styles.toggleButton}>
+          <Text>{isPasswordVisible ? 'Verbergen' : 'Weergeven'}</Text>
+        </TouchableOpacity>
+      </View>
       <Button title="Inloggen" onPress={handleLogin} />
     </View>
   );
@@ -64,6 +64,15 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderWidth: 1,
     borderRadius: 5,
+  },
+  passwordContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  toggleButton: {
+    marginLeft: 10,
   },
 });
 
