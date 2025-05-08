@@ -4,6 +4,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { rgbaColor } from 'react-native-reanimated/lib/typescript/Colors';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -99,7 +100,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 30,
-    backgroundColor: '#F5F7FA',
+    backgroundColor: 'rgba(245,247,250, 0.85)',
     borderRadius: 35,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -135,7 +136,7 @@ const styles = StyleSheet.create({
   registerLink: {
     marginTop: 16,
     textAlign: 'center',
-    color: '#00b6ff',
+    color: '#008bd1',
     textDecorationLine: 'underline',
   },
 });
