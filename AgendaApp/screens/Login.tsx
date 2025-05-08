@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, Image, ImageBackground, Dimensions } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -43,37 +44,75 @@ const LoginScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Log in</Text>
-      <TextInput
-        placeholder="E-mail"
-        value={email}
-        onChangeText={setEmail}
-        style={styles.input}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-      <TextInput
-        placeholder="Wachtwoord"
-        value={password}
-        onChangeText={setPassword}
-        style={styles.input}
-        secureTextEntry
-      />
-      <Button title="Inloggen" onPress={handleLogin} />
-      <Text style={styles.registerLink} onPress={() => navigation.navigate('Register')}>
-        Geen account? Registreer hier
-      </Text>
-    </View>
+    <ImageBackground
+      source={require('../assets/loginBackground.jpg')} // Path to your image
+      style={styles.background}
+      resizeMode="cover" // Or 'contain', depending on your design
+    >
+      <View style={styles.container}>
+        <TextInput
+          placeholder="E-mail"
+          placeholderTextColor='#909090'
+          value={email}
+          onChangeText={setEmail}
+          style={styles.input}
+          autoCapitalize="none"
+          keyboardType="email-address"
+        />
+        <TextInput
+          placeholder="Wachtwoord"
+          placeholderTextColor='#909090'
+          value={password}
+          onChangeText={setPassword}
+          style={styles.input}
+          secureTextEntry
+        />
+        <Button title="Inloggen" onPress={handleLogin} />
+        <Text style={styles.registerLink} onPress={() => navigation.navigate('Register')}>
+          Geen account? Registreer hier
+        </Text>
+      </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
+  background: {
+    flex: 1, // Full height and width
+    width: '100%',
+    height: '100%',
     justifyContent: 'center',
-    backgroundColor: '#fff',
+    alignItems: 'center',
+  },
+  overlay: {
+    backgroundColor: 'rgba(255, 255, 255, 0.85)', // Optional: white overlay to make form readable
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    alignItems: 'center',
+  },
+  container: {
+    width: '90%',
+    maxWidth: 400,
+    height: 400,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 30,
+    backgroundColor: '#F5F7FA',
+    borderRadius: 35,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 3,
+    marginTop: 'auto',
+    marginBottom: 'auto',
+},
+  login: {
+    width: 150,
+    height: 150,
+    marginBottom: 20,
   },
   title: {
     fontSize: 24,
@@ -81,17 +120,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
   },
+  icon: {
+    marginRight: 8,
+  },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
     padding: 12,
     marginBottom: 16,
+    maxWidth: 350,
+    width: '100%'
   },
   registerLink: {
     marginTop: 16,
     textAlign: 'center',
-    color: '#007BFF',
+    color: '#00b6ff',
     textDecorationLine: 'underline',
   },
 });
