@@ -17,12 +17,12 @@ public class AuthController : ControllerBase {
     public async Task<IActionResult> Register([FromBody] User user)
     {
         if (await _context.Users.AnyAsync(u => u.Email == user.Email))
-            return BadRequest("User already exists");
-
+            return BadRequest("Gebruiker bestaat al");
+ 
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        return Ok();
+        return Ok("Succesvol een account aangemaakt.");
     }
 
     [HttpPost("login")]
@@ -32,8 +32,8 @@ public class AuthController : ControllerBase {
             .FirstOrDefaultAsync(u => u.Email == loginUser.Email);
 
         if (user == null || user.Password != loginUser.Password)
-            return Unauthorized("Invalid login");
+            return Unauthorized("Wachtwoord onjuist. Probeer het opnieuw.");
 
-        return Ok("Loggin in successfull");
+        return Ok("Succesvol ingelogd.");
     }
 }
