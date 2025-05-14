@@ -40,7 +40,56 @@ public class TaskService : ITaskService {
         return ServiceResult<List<TaskItem>>.SuccessResult(tasks);
     }
 
+    public async Task<ServiceResult<TaskItem>> EditTask(TaskItem task){
+        var foundTask = await _context.taskItems.FirstOrDefaultAsync(t => t.Id == task.Id);
 
+        if (foundTask != null){
+
+            foundTask.Title = task.Title;
+            foundTask.StartDate = task.StartDate;
+            foundTask.EndDate = task.EndDate;
+            foundTask.Description = task.Description;
+            foundTask.Finished = task.Finished;
+
+            await _context.SaveChangesAsync();
+            return ServiceResult<TaskItem>.SuccessResult(task);
+
+        }
+
+        return ServiceResult<TaskItem>.Failure("Taak bestaat niet.");
+    }
+
+    public async Task<ServiceResult<TaskItem>> RemoveTask(TaskItem task){
+        var foundTask = await _context.taskItems.FirstOrDefaultAsync(t => t.Id == task.Id);
+
+        if (foundTask != null){
+            _context.taskItems.Remove(foundTask);
+            await _context.SaveChangesAsync();
+            return ServiceResult<TaskItem>.SuccessResult(foundTask);
+        }
+
+        return ServiceResult<TaskItem>.Failure("Taak bestaat niet.");
+    }
+
+    public async Task<ServiceResult<TaskItem>> FinishTask(TaskItem task)
+    {
+        var foundTask = await _context.taskItems.FirstOrDefaultAsync(t => t.Id == task.Id);
+
+        if (foundTask == null)
+        {
+            return ServiceResult<TaskItem>.Failure("Taak niet gevonden.");
+        }
+
+        if (foundTask.Finished)
+        {
+            return ServiceResult<TaskItem>.Failure("Taak is al gemarkeerd als voltooid.");
+        }
+
+        foundTask.Finished = true;
+        await _context.SaveChangesAsync();
+
+        return ServiceResult<TaskItem>.SuccessResult(foundTask);
+    }
 }
 
 
@@ -48,9 +97,9 @@ public interface ITaskService {
     public Task<ServiceResult<TaskItem>> CreateTask(TaskItem taskItem);
     public Task<ServiceResult<List<TaskItem>>> GetTasksOnDate (DateTime date);
 
-    // public Task<ServiceResult<TaskItem> EditTask(TaskItem taskItem);
+    public Task<ServiceResult<TaskItem>> EditTask(TaskItem taskItem);
 
-    // public Task<ServiceResult<TaskItem> RemoveTask(TaskItem taskItem);
+    public Task<ServiceResult<TaskItem>> RemoveTask(TaskItem taskItem);
 
-    // public Task<ServiceResult<TaskItem> FinishTask(bool Finished);
+    public Task<ServiceResult<TaskItem>> FinishTask(TaskItem taskItem);
 }

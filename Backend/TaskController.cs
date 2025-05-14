@@ -33,4 +33,37 @@ public class TaskController : ControllerBase {
 
         return BadRequest(result.ErrorMessage);
     }
+
+    [HttpPut("edit")]
+    public async Task<IActionResult> EditTask([FromBody] TaskItem task){
+        var result = await _service.EditTask(task);
+
+        if (result.StatusCode == 200){
+            return Ok(result.Data);
+        }
+
+        return BadRequest(result.ErrorMessage);
+    }
+
+    [HttpDelete("remove")]
+    public async Task<IActionResult> RemoveTask([FromBody] TaskItem task){
+        var result = await _service.RemoveTask(task);
+
+        if (result.StatusCode == 200){
+            return Ok(result.Data);
+        }
+
+        return BadRequest(result.ErrorMessage);
+    }
+
+    [HttpPut("finish")]
+    public async Task<IActionResult> FinishTask([FromBody] TaskItem task){
+        var result = await _service.FinishTask(task);
+
+        if (result.StatusCode == 200){
+            return Ok(result.Data);
+        }
+
+        return BadRequest(result.ErrorMessage);
+    }
 }
