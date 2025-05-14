@@ -9,6 +9,8 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        builder.Services.AddScoped<ITaskService, TaskService>();
+
         builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlite("Data Source=Database.db"));
 

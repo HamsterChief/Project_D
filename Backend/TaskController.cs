@@ -34,31 +34,35 @@ public class TaskController : ControllerBase {
         return BadRequest(result.ErrorMessage);
     }
 
-    [HttpPut("edit")]
-    public async Task<IActionResult> EditTask([FromBody] TaskItem task){
-        var result = await _service.EditTask(task);
+    [HttpPut("edit/{id}")]
+    public async Task<IActionResult> EditTask([FromRoute] int id, [FromBody] TaskItem task)
+    {
+        var result = await _service.EditTask(id, task);
 
-        if (result.StatusCode == 200){
+        if (result.StatusCode == 200)
+        {
             return Ok(result.Data);
         }
 
         return BadRequest(result.ErrorMessage);
     }
 
-    [HttpDelete("remove")]
-    public async Task<IActionResult> RemoveTask([FromBody] TaskItem task){
-        var result = await _service.RemoveTask(task);
+    [HttpDelete("remove/{id}")]
+    public async Task<IActionResult> RemoveTask([FromRoute] int id)
+    {
+        var result = await _service.RemoveTask(id);
 
-        if (result.StatusCode == 200){
+        if (result.StatusCode == 200)
+        {
             return Ok(result.Data);
         }
 
         return BadRequest(result.ErrorMessage);
     }
 
-    [HttpPut("finish")]
-    public async Task<IActionResult> FinishTask([FromBody] TaskItem task){
-        var result = await _service.FinishTask(task);
+    [HttpPut("finish/{id}")]
+    public async Task<IActionResult> FinishTask(int id){
+        var result = await _service.FinishTask(id);
 
         if (result.StatusCode == 200){
             return Ok(result.Data);
