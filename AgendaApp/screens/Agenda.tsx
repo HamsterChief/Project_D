@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Button, StyleSheet } from 'react-native';
 import { Audio } from 'expo-av';
+import { useNavigation } from '@react-navigation/native';
 
 type Appointment = {
   id: string;
@@ -16,6 +17,7 @@ const initialAppointments: Appointment[] = [
 ];
 
 const AgendaScreen = () => {
+  const navigation = useNavigation();
   const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [sound, setSound] = useState<Audio.Sound | null>(null);
@@ -103,52 +105,64 @@ const AgendaScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Mijn Afspraken</Text>
-
-      <FlatList
-        data={appointments}
-        renderItem={({ item }) => (
-          <View style={styles.item}>
-            <Text style={styles.text}>{item.title}</Text>
-            <Text style={styles.text}>{item.date}</Text>
-            <Button
-              title="Herinnering"
-              onPress={() => alert(`Herinnering voor ${item.title}`)}
-            />
-            {item.audioUri && (
-              <Button title="Afspelen" onPress={() => playRecording(item.audioUri!)} />
-            )}
-          </View>
-        )}
-        keyExtractor={(item) => item.id}
-      />
-
-      <View style={styles.audioControls}>
-        <Button
-          title={recording ? 'Stop opname' : 'Start opname'}
-          onPress={recording ? stopRecording : startRecording}
-        />
+      <View style={styles.headerRow}>
+        <Text style={styles.title}>Mijn Afspraken</Text>
+        <Text style={styles.logout} onPress={() => navigation.navigate('Login')}>
+            Logout
+        </Text>
       </View>
-    </View>
-  );
-};
+
+        <FlatList
+          data={appointments}
+          renderItem={({ item }) => (
+            <View style={styles.item}>
+              <Text style={styles.text}>{item.title}</Text>
+              <Text style={styles.text}>{item.date}</Text>
+              <Button
+                title="Herinnering"
+                onPress={() => alert(`Herinnering voor ${item.title}`)}
+              />
+              {item.audioUri && (
+                <Button title="Afspelen" onPress={() => playRecording(item.audioUri!)} />
+              )}
+            </View>
+          )}
+          keyExtractor={(item) => item.id}
+        />
+
+        <View style={styles.audioControls}>
+          <Button
+            title={recording ? 'Stop opname' : 'Start opname'}
+            onPress={recording ? stopRecording : startRecording}
+          />
+        </View>
+      </View>
+    );
+  };
 
 const styles = StyleSheet.create({
+  headerRow: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  paddingHorizontal: 16,
+  marginBottom: 20,
+  },
   container: {
     flex: 1,
     padding: 20,
     backgroundColor: '#fff',
   },
+  item: {
+  marginBottom: 20,
+  padding: 15,
+  backgroundColor: '#f2f2f2',
+  borderRadius: 10,
+  },
   title: {
     fontSize: 24,
     marginBottom: 20,
     fontWeight: 'bold',
-  },
-  item: {
-    marginBottom: 20,
-    padding: 15,
-    backgroundColor: '#f2f2f2',
-    borderRadius: 10,
   },
   text: {
     marginBottom: 5,
@@ -156,6 +170,10 @@ const styles = StyleSheet.create({
   audioControls: {
     marginTop: 30,
     gap: 10,
+  },
+    logout: {
+    fontSize: 16,
+    color: 'blue',
   },
 });
 

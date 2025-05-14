@@ -19,6 +19,16 @@ public class AuthController : ControllerBase {
         if (await _context.Users.AnyAsync(u => u.Email == user.Email))
             return BadRequest("User already exists");
 
+        if (!RegisterAndLoginMethods.IsValidEmail(user.Email))
+        {
+            return BadRequest("Error: invalid email.");
+        }
+        if (!RegisterAndLoginMethods.isValidPassword(user.Password))
+        {
+            return BadRequest(@"Error: invalid password. Must contain at least 8 characters, one capital (letter) and one special (*-!#)");
+        }
+
+        user.Password = RegisterAndLoginMethods.HashPassword(user.Password);
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
@@ -31,7 +41,10 @@ public class AuthController : ControllerBase {
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.Email == loginUser.Email);
 
-        if (user == null || user.Password != loginUser.Password)
+        Console.WriteLine(RegisterAndLoginMethods.HashPassword(loginUser.Password));
+        Console.WriteLine(user.Password);
+
+        if (user == null || !RegisterAndLoginMethods.ValidatePassword(loginUser.Password, user.Password))
             return Unauthorized("Invalid login");
 
         return Ok("Loggin in successfull");
