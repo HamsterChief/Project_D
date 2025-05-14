@@ -50,7 +50,7 @@ const LoginScreen = () => {
 
   return (
     <ImageBackground
-      source={require('../assets/loginBackground.jpg')} // Path to your image
+      source={require('../assets/login.png')} // Path to your image
       style={styles.background}
       resizeMode="cover" // Or 'contain', depending on your design
     >

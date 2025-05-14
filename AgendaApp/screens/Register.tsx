@@ -6,6 +6,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { useNavigation } from '@react-navigation/native';
 import { registerstyles as styles} from '../styles/registerstyles';
+// import * as Crypto from 'expo-crypto';
 
 type RegisterScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Register'>;
 
@@ -14,12 +15,20 @@ const RegisterScreen: React.FC = () => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  // const hashPassword = async (password: string) => {
+  //   return await Crypto.digestStringAsync(
+  //     Crypto.CryptoDigestAlgorithm.SHA256,
+  //     password
+  //   );
+  // };
 
   const handleRegister = async () => {
     if (!email || !password) {
       Alert.alert('Fout', 'Vul zowel e-mail als wachtwoord in.');
       return;
     }
+
+    // const passwordHashed = await hashPassword(password); <-- happens on server-side (backend)
 
     try {
       const response = await fetch('http://localhost:5133/api/auth/register', {
@@ -45,7 +54,7 @@ const RegisterScreen: React.FC = () => {
 
   return (
     <ImageBackground
-      source={require('../assets/loginBackground.jpg')} // Use same background image as login screen
+      source={require('../assets/login.png')} // Use same background image as login screen
       style={styles.background}
       resizeMode="cover"
     >
