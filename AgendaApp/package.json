@@ -13,13 +13,18 @@
     "@expo/metro-runtime": "~4.0.1",
     "@react-navigation/native": "^7.1.6",
     "@react-navigation/stack": "^7.2.10",
+    "@types/password-hash": "^1.2.24",
     "expo": "~52.0.46",
+    "expo-av": "^15.1.4",
+    "expo-crypto": "~14.0.2",
     "expo-status-bar": "~2.0.1",
+    "firebase": "^11.7.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-native": "0.76.9",
     "react-native-gesture-handler": "^2.25.0",
     "react-native-reanimated": "^3.17.4",
+    "react-native-safe-area-context": "4.12.0",
     "react-native-web": "~0.19.13"
   },
   "devDependencies": {
