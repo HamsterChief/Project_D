@@ -21,6 +21,11 @@ const RegisterScreen: React.FC = () => {
   //     password
   //   );
   // };
+  const handleError = (message: string, error?: unknown) => {
+    console.error(message, error)
+    console.log(message + " " + error)
+    alert(message + "\n" + error)
+  }
 
   const handleRegister = async () => {
     if (!email || !password) {
@@ -44,11 +49,12 @@ const RegisterScreen: React.FC = () => {
         navigation.navigate('Login');
       } else {
         const error = await response.text();
-        Alert.alert('Registratie mislukt', error);
+        handleError('Registratie mislukt', error)
+        // Alert.alert('Registratie mislukt', error);
       }
     } catch (err) {
-      console.error('Error tijdens registratie:', err);
-      Alert.alert('Fout', 'Er is iets misgegaan bij het verbinden met de server.');
+      // Alert.alert('Fout', 'Er is iets misgegaan bij het verbinden met de server.');
+      handleError('Error tijdens registratie:', err);
     }
   };
 
