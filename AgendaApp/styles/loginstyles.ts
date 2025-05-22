@@ -64,4 +64,15 @@ export const loginStyles = StyleSheet.create({
     textDecorationLine: 'underline',
     textAlign: 'center',
   },
+  toggleButton: {
+    position: 'absolute',
+    right: 10,
+    top: 12,
+    padding: 4,
+  },
+  passwordContainer: {
+    width: '100%',
+    position: 'relative',
+    marginBottom: 16,
+  },
 });

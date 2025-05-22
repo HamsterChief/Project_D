@@ -1,5 +1,4 @@
 {
-  // "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "moduleResolution": "node",
     "module": "esnext",
@@ -8,4 +7,5 @@
     "allowSyntheticDefaultImports": true,
     "strict": true
   },
+  "extends": "expo/tsconfig.base"
 }
