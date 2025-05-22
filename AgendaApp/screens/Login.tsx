@@ -3,9 +3,16 @@ import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Alert } fr
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
+<<<<<<< Updated upstream
+=======
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../types';
+import { loginStyles as styles } from '../styles/loginstyles';
+import { TouchableOpacity } from 'react-native';
+>>>>>>> Stashed changes
 
 const LoginScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);

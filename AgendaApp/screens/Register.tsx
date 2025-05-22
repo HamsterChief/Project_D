@@ -5,6 +5,11 @@ import { auth } from '../firebaseConfig';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { useNavigation } from '@react-navigation/native';
+<<<<<<< Updated upstream
+=======
+import { registerstyles as styles } from '../styles/registerstyles';
+// import * as Crypto from 'expo-crypto';
+>>>>>>> Stashed changes
 
 type RegisterScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Register'>;
 

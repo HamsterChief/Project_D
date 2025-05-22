@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Button, StyleSheet } from 'react-native';
 import { Audio } from 'expo-av';
+<<<<<<< Updated upstream
+=======
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../types'; // Adjust path if needed
+>>>>>>> Stashed changes
 
 type Appointment = {
   id: string;
@@ -16,6 +22,10 @@ const initialAppointments: Appointment[] = [
 ];
 
 const AgendaScreen = () => {
+<<<<<<< Updated upstream
+=======
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+>>>>>>> Stashed changes
   const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [sound, setSound] = useState<Audio.Sound | null>(null);
@@ -23,8 +33,8 @@ const AgendaScreen = () => {
   useEffect(() => {
     return sound
       ? () => {
-          sound.unloadAsync();
-        }
+        sound.unloadAsync();
+      }
       : undefined;
   }, [sound]);
 
@@ -103,7 +113,16 @@ const AgendaScreen = () => {
 
   return (
     <View style={styles.container}>
+<<<<<<< Updated upstream
       <Text style={styles.title}>Mijn Afspraken</Text>
+=======
+      <View style={styles.headerRow}>
+        <Text style={styles.title}>Mijn Afspraken</Text>
+        <Text style={styles.logout} onPress={() => navigation.navigate('Login')}>
+          Logout
+        </Text>
+      </View>
+>>>>>>> Stashed changes
 
       <FlatList
         data={appointments}
@@ -134,11 +153,30 @@ const AgendaScreen = () => {
 };
 
 const styles = StyleSheet.create({
+<<<<<<< Updated upstream
+=======
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    marginBottom: 20,
+  },
+>>>>>>> Stashed changes
   container: {
     flex: 1,
     padding: 20,
     backgroundColor: '#fff',
   },
+<<<<<<< Updated upstream
+=======
+  item: {
+    marginBottom: 20,
+    padding: 15,
+    backgroundColor: '#f2f2f2',
+    borderRadius: 10,
+  },
+>>>>>>> Stashed changes
   title: {
     fontSize: 24,
     marginBottom: 20,
@@ -157,6 +195,13 @@ const styles = StyleSheet.create({
     marginTop: 30,
     gap: 10,
   },
+<<<<<<< Updated upstream
+=======
+  logout: {
+    fontSize: 16,
+    color: 'blue',
+  },
+>>>>>>> Stashed changes
 });
 
 export default AgendaScreen;
