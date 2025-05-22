@@ -15,16 +15,22 @@ const LoginScreen = () => {
   const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
   const validatePassword = (password: string) => password.length >= 6;
 
-  const handleLogin = async () => {
-    if (!validateEmail(email)) {
-      Alert.alert('Ongeldig e-mailadres', 'Voer een geldig e-mailadres in.');
-      return;
-    }
+  const handleError = (message: string, error?: unknown) => {
+    console.error(message, error)
+    console.log(message + " " + error)
+    alert(message + "\n" + error)
+  }
 
-    if (!validatePassword(password)) {
-      Alert.alert('Wachtwoord te kort', 'Je wachtwoord moet minstens 6 tekens bevatten.');
-      return;
-    }
+  const handleLogin = async () => {
+    // if (!validateEmail(email)) {
+    //   Alert.alert('Ongeldig e-mailadres', 'Voer een geldig e-mailadres in.');
+    //   return;
+    // }
+
+    // if (!validatePassword(password)) {
+    //   Alert.alert('Wachtwoord te kort', 'Je wachtwoord moet minstens 6 tekens bevatten.');
+    //   return;
+    // }
 
     try {
       const response = await fetch('http://localhost:5133/api/auth/login', {
@@ -40,10 +46,10 @@ const LoginScreen = () => {
         navigation.navigate('Agenda');
       } else {
         const message = await response.text();
-        Alert.alert('Login mislukt', message);
+        handleError('Login mislukt', message);
       }
     } catch (error) {
-      console.error('Login error:', error);
+      handleError('Login error:', error);
       Alert.alert('Fout', 'Kon geen verbinding maken met de server.');
     }
   };

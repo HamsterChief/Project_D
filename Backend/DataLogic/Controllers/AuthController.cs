@@ -17,15 +17,15 @@ public class AuthController : ControllerBase {
     public async Task<IActionResult> Register([FromBody] User user)
     {
         if (await _context.Users.AnyAsync(u => u.Email == user.Email))
-            return BadRequest("User already exists");
+            return BadRequest("Fout: gebruiker met de huidige gegevens bestaat al.");
 
         if (!RegisterAndLoginMethods.IsValidEmail(user.Email))
         {
-            return BadRequest("Error: invalid email.");
+            return BadRequest("Fout: ongeldige email.");
         }
         if (!RegisterAndLoginMethods.isValidPassword(user.Password))
         {
-            return BadRequest(@"Error: invalid password. Must contain at least 8 characters, one capital (letter) and one special (*-!#)");
+            return BadRequest(@"Fout: een wachtwoord moet minstens 8 tekens bevatten waarvan een speciaal en een hoofdletter.");
         }
 
         user.Password = RegisterAndLoginMethods.HashPassword(user.Password);
@@ -41,12 +41,12 @@ public class AuthController : ControllerBase {
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.Email == loginUser.Email);
 
-        Console.WriteLine(RegisterAndLoginMethods.HashPassword(loginUser.Password));
-        Console.WriteLine(user.Password);
+        if (user == null)
+        return NotFound("Fout: geen account gevonden met huidige gegevens.");
+        
+        if (!RegisterAndLoginMethods.ValidatePassword(loginUser.Password, user.Password))
+            return Unauthorized("Fout: ongeldig wachtwoord.");
 
-        if (user == null || !RegisterAndLoginMethods.ValidatePassword(loginUser.Password, user.Password))
-            return Unauthorized("Invalid login");
-
-        return Ok("Loggin in successfull");
+        return Ok("Gelukt! Bezig met inloggen...");
     }
 }
