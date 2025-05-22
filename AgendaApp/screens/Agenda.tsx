@@ -119,7 +119,7 @@ const AgendaScreen = () => {
           <FaCalendarAlt
             size={24}
             style={{ marginLeft: 16, color: '#007AFF', cursor: 'pointer' }}
-            onClick={() => setShowCalendar(true)}
+            onClick={() => setShowCalendar((prev) => !prev)}
           />
         </View>
       </View>
