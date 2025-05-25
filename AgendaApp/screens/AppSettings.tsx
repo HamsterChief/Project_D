@@ -1,8 +1,7 @@
-
-
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Button } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Button, Image} from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // <-- Add this import
+import axios from 'axios';
 
 
 
@@ -36,17 +35,21 @@ const AppSettingsScreen: React.FC = () => {
 
       {/* Settings Options */}
       <ScrollView style={styles.optionsContainer}>
-        <SettingOption label="Lettertype" />
-        <SettingOption label="Achtergrond" />
-        <SettingOption label="Pictogrammen" />
-        <SettingOption label="Muzieknoten" />
+        <SettingOption label="Lettertype" icon={require('../assets/lettertypeIcon.png')} />
+        <SettingOption label="Achtergrond" icon={require('../assets/backgroundIcon.png')} />
+        <SettingOption label="Pictogrammen" icon={require('../assets/pictogramIcon.png')} />
+        
       </ScrollView>
     </View>
   );
 };
 
-const SettingOption = ({ label }: { label: string }) => (
+const SettingOption = ({ label, icon }: { label: string, icon: any}) => (
   <TouchableOpacity style={styles.option}>
+    <Image
+      source={icon}
+      style={[styles.optionIcon, { tintColor: '#6A0DAD' }]} // Tint color like your tab bar
+    />
     <Text style={styles.optionText}>{label}</Text>
   </TouchableOpacity>
 );
@@ -84,12 +87,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   option: {
-    backgroundColor: '#fff',
-    paddingVertical: 18,
-    paddingHorizontal: 15,
-    borderRadius: 12,
-    marginBottom: 15,
-  },
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: '#fff',
+  paddingVertical: 18,
+  paddingHorizontal: 15,
+  borderRadius: 12,
+  marginBottom: 15,
+},
+optionIcon: {
+  width: 24,
+  height: 24,
+  marginRight: 12,
+  resizeMode: 'contain',
+},
   optionText: {
     fontSize: 16,
     fontWeight: '600',
