@@ -17,12 +17,22 @@ public class AuthController : ControllerBase {
     public async Task<IActionResult> Register([FromBody] User user)
     {
         if (await _context.Users.AnyAsync(u => u.Email == user.Email))
-            return BadRequest("Gebruiker bestaat al");
- 
+            return BadRequest("User already exists");
+
+        if (!RegisterAndLoginMethods.IsValidEmail(user.Email))
+        {
+            return BadRequest("Error: invalid email.");
+        }
+        if (!RegisterAndLoginMethods.isValidPassword(user.Password))
+        {
+            return BadRequest(@"Error: invalid password. Must contain at least 8 characters, one capital (letter) and one special (*-!#)");
+        }
+
+        user.Password = RegisterAndLoginMethods.HashPassword(user.Password);
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        return Ok("Succesvol een account aangemaakt.");
+        return Ok();
     }
 
     [HttpPost("login")]
@@ -31,9 +41,18 @@ public class AuthController : ControllerBase {
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.Email == loginUser.Email);
 
-        if (user == null || user.Password != loginUser.Password)
-            return Unauthorized("Wachtwoord onjuist. Probeer het opnieuw.");
+        if (user != null){
 
-        return Ok("Succesvol ingelogd.");
+            Console.WriteLine(RegisterAndLoginMethods.HashPassword(loginUser.Password));
+            Console.WriteLine(user.Password);
+
+            return Ok("Loggin in successfull");
+        }
+
+        if (!RegisterAndLoginMethods.ValidatePassword(loginUser.Password, user.Password)){
+            return Unauthorized("Invalid login");
+        }
+
+        return Unauthorized("Invalid login");
     }
 }

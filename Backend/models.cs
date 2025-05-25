@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 public class ServiceResult<T>
 {
     public T? Data { get; set; }
@@ -40,7 +42,8 @@ public class TaskItem {
 
     public int UserId {get; set;}
 
-    public User User { get; set; }
+    [NotMapped]
+    public string UserEmail { get; set; }
 }
 
 
@@ -53,7 +56,7 @@ public class AppointmentItem {
     public DateTime StartDate {get; set;}
 
     public DateTime EndDate {get; set;}
-
+ 
     public string Description {get; set;}
 
     public string Location {get; set;}

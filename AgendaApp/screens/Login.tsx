@@ -1,10 +1,10 @@
+import { loginStyles as styles} from '../styles/loginstyles';
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, ImageBackground } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, ImageBackground, TouchableOpacity } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
-import { loginStyles as styles} from '../styles/loginstyles';
-import { TouchableOpacity } from 'react-native';
+
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -37,10 +37,12 @@ const LoginScreen = () => {
 
       if (response.ok) {
         Alert.alert('Succesvol ingelogd', 'Welkom terug!');
-        navigation.navigate('Agenda');
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Main', params: { screen: 'Home', params: {email: email} } }],
+        });
       } else {
         const message = await response.text();
-        Alert.alert('Login mislukt', message);
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -94,32 +96,6 @@ const LoginScreen = () => {
   );
 };
 
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     padding: 20,
-//     justifyContent: 'center',
-//     backgroundColor: '#fff',
-//   },
-//   title: {
-//     fontSize: 24,
-//     marginBottom: 20,
-//     textAlign: 'center',
-//     fontWeight: 'bold',
-//   },
-//   input: {
-//     borderWidth: 1,
-//     borderColor: '#ccc',
-//     borderRadius: 8,
-//     padding: 12,
-//     marginBottom: 16,
-//   },
-//   registerLink: {
-//     marginTop: 16,
-//     textAlign: 'center',
-//     color: '#007BFF',
-//     textDecorationLine: 'underline',
-//   },
-// });
+
 
 export default LoginScreen;
