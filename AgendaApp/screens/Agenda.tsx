@@ -110,6 +110,9 @@ const AgendaScreen = () => {
         <Text style={styles.logout} onPress={() => navigation.navigate('Login')}>
             Logout
         </Text>
+        <Text style={styles.logout} onPress={() => navigation.navigate('Settings')}>
+            Settings
+        </Text>
       </View>
 
         <FlatList
@@ -129,6 +132,13 @@ const AgendaScreen = () => {
           )}
           keyExtractor={(item) => item.id}
         />
+
+        {/* <View style={styles.item}>
+        <Button
+            title = "Settings"
+            onPress={() => navigation.navigate('Settings')}
+        />
+        </View> */}
 
         <View style={styles.audioControls}>
           <Button

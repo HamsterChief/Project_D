@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=Database.db"));
 
+builder.Services.AddScoped<IFormService, FormService>();
 
 builder.Services.AddControllers();
 

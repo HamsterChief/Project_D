@@ -5,7 +5,8 @@ using System.Text;
 
 [ApiController]
 [Route("api/auth")]
-public class AuthController : ControllerBase {
+public class AuthController : ControllerBase
+{
     private readonly AppDbContext _context;
 
     public AuthController(AppDbContext context)
@@ -42,11 +43,21 @@ public class AuthController : ControllerBase {
             .FirstOrDefaultAsync(u => u.Email == loginUser.Email);
 
         if (user == null)
-        return NotFound("Fout: geen account gevonden met huidige gegevens.");
-        
+            return NotFound("Fout: geen account gevonden met huidige gegevens.");
+
         if (!RegisterAndLoginMethods.ValidatePassword(loginUser.Password, user.Password))
             return Unauthorized("Fout: ongeldig wachtwoord.");
 
         return Ok("Gelukt! Bezig met inloggen...");
     }
+
+    // [HttpPut("change_password")]
+    // public async Task<IActionResult> Login([FromBody] User loginUser)
+    // {
+    //     var user = await _context.Users
+    //         .FirstOrDefaultAsync(u => u.Id == loginUser.Id);
+        
+    //     if (user == null)
+    //         return NotFound("Fout: geen account gevonden met huidige gegevens.");
+    // }
 }
