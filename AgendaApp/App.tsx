@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from './screens/Login';
 import AgendaScreen from './screens/Agenda';
 import RegisterScreen from './screens/Register';
+import SandboxScreen from './screens/Sandbox';
 
 const Stack = createStackNavigator();
 
