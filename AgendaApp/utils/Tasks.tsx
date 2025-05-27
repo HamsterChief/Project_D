@@ -2,21 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TextInput, Button, StyleSheet, Alert, ImageBackground, Pressable, Image } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 //import { auth } from '../firebaseConfig';
-import { useNavigation } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 //import { loginStyles as styles} from '../styles/loginstyles';
 import { Audio } from 'expo-av';
 import { TouchableOpacity } from 'react-native';
+import { CreateTaskModal } from '../components/CreateTaskModal';
 
 export const PlusButton = () => {
-  const navigation = useNavigation();
+  const userEmail = (useRoute().params as any)?.email ?? '';
+  const [modalVisible, setModalVisible] = useState(false);
 
   return (
-    <Pressable
-      onPress={() => navigation.navigate('Task')}
-      style={({ pressed }) => [pressed ? styles.pressed : styles.notPressed]}
-    >
-      <Image style={styles.icon} source={require('../assets/IconPlus.png')} />
-    </Pressable>
+    <View>
+      <Pressable
+        onPress={() => setModalVisible(true)}
+        style={({ pressed }) => [pressed ? styles.pressed : styles.notPressed]}
+      >
+        <Image style={styles.icon} source={require('../assets/IconPlus.png')} />
+      </Pressable>
+
+      <CreateTaskModal visible={modalVisible} onClose={() => setModalVisible(false)} userEmail={userEmail} />
+    </View>
   );
 }
 
@@ -153,7 +159,8 @@ export const useAudioRecorder = () => {
 };
 
 type Appointment = {
-  id: number
+  id: number;
+  email: string;
   title: string;
   description: string;
   startDate: Date;
@@ -162,12 +169,12 @@ type Appointment = {
 };
 
 const initialAppointments: Appointment[] = [
-  { id: 1, title: 'Meeting', description:'Meeting met Taha', startDate: new Date('2025-04-24T14:00'), endDate: new Date('2025-04-24T15:00') },
-  { id: 2, title: 'Chillen', description:'Chillen met Henk', startDate: new Date('2025-04-25T09:30'), endDate: new Date('2025-04-24T10:00') },
-  { id: 3, title: 'Lunch', description:'Lunch met team', startDate: new Date('2025-04-26T12:00'), endDate: new Date('2025-04-24T13:00') },
+  { id: 1, email: 'melvernvandijk@outlook.com', title: 'Meeting', description:'Meeting met Taha', startDate: new Date('2025-04-24T14:00'), endDate: new Date('2025-04-24T15:00') },
+  { id: 2, email: 'taha@gmail.com', title: 'Chillen', description:'Chillen met Henk', startDate: new Date('2025-04-25T09:30'), endDate: new Date('2025-04-24T10:00') },
+  { id: 3, email: 'lucathierry@live.nl', title: 'Lunch', description:'Lunch met team', startDate: new Date('2025-04-26T12:00'), endDate: new Date('2025-04-24T13:00') },
 ];
 
-const DisplayTasks = () => {
+export const DisplayTasks = () => {
   const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments);
 
   const handleAudioUriUpdate = (id: number, uri: string | null) => {
@@ -177,18 +184,22 @@ const DisplayTasks = () => {
   };
 
   const grouped = groupAppointmentsByTime(appointments);
+  const userEmail = (useRoute().params as any)?.email ?? '';
+  const [modalVisible, setModalVisible] = useState(false);
 
   return (
     <View style={styles.container}>
-      {Object.entries(grouped).map(([timeOfDay, apps]) =>
+      {Object.entries(grouped).filter(([_, apps]) => apps.length > 0).map(([timeOfDay, apps]) =>
         <View key={timeOfDay} style={styles.timeSection}>
           {apps
-            .sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
+            .sort((a, b) => b.startDate.getTime() - a.startDate.getTime())
             .map(app => (
               <View key={app.id} style={styles.appointment}>
                 <Text>{app.startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'})}</Text>
-                <Button title='update' onPress={CreateTaskModal}/>
+                <Pressable onPress={() => setModalVisible(true)}>{app.title}</Pressable>
                 <AudioRecorderButton appointment={app} onUri={(uri) => handleAudioUriUpdate(app.id, uri)}/>
+
+                <CreateTaskModal visible={modalVisible} onClose={() => setModalVisible(false)} userEmail={userEmail} />
               </View>
             ))}
         </View>
@@ -209,7 +220,10 @@ const styles = StyleSheet.create({
         height: 36
     },
     timeSection: {
-      marginBottom: 24
+      marginBottom: 24,
+      paddingHorizontal: 16,
+      paddingVertical: 16,
+      backgroundColor: '#fff'
     },
     sectionTitle: {
       fontSize: 18,
@@ -232,7 +246,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: '#fff',
     },
     item: {
         marginBottom: 20,

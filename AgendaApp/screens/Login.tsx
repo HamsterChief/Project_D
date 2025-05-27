@@ -1,10 +1,10 @@
+import { loginStyles as styles} from '../styles/loginstyles';
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, ImageBackground } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, ImageBackground, TouchableOpacity } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
-import { loginStyles as styles} from '../styles/loginstyles';
-import { TouchableOpacity } from 'react-native';
+
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -15,22 +15,16 @@ const LoginScreen = () => {
   const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
   const validatePassword = (password: string) => password.length >= 6;
 
-  const handleError = (message: string, error?: unknown) => {
-    console.error(message, error)
-    console.log(message + " " + error)
-    alert(message + "\n" + error)
-  }
-
   const handleLogin = async () => {
-    // if (!validateEmail(email)) {
-    //   Alert.alert('Ongeldig e-mailadres', 'Voer een geldig e-mailadres in.');
-    //   return;
-    // }
+    if (!validateEmail(email)) {
+      Alert.alert('Ongeldig e-mailadres', 'Voer een geldig e-mailadres in.');
+      return;
+    }
 
-    // if (!validatePassword(password)) {
-    //   Alert.alert('Wachtwoord te kort', 'Je wachtwoord moet minstens 6 tekens bevatten.');
-    //   return;
-    // }
+    if (!validatePassword(password)) {
+      Alert.alert('Wachtwoord te kort', 'Je wachtwoord moet minstens 6 tekens bevatten.');
+      return;
+    }
 
     try {
       const response = await fetch('http://localhost:5133/api/auth/login', {
@@ -43,13 +37,15 @@ const LoginScreen = () => {
 
       if (response.ok) {
         Alert.alert('Succesvol ingelogd', 'Welkom terug!');
-        navigation.navigate('Agenda');
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Main', params: { screen: 'Home', params: {email: email} } }],
+        });
       } else {
         const message = await response.text();
-        handleError('Login mislukt', message);
       }
     } catch (error) {
-      handleError('Login error:', error);
+      console.error('Login error:', error);
       Alert.alert('Fout', 'Kon geen verbinding maken met de server.');
     }
   };
@@ -100,32 +96,6 @@ const LoginScreen = () => {
   );
 };
 
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     padding: 20,
-//     justifyContent: 'center',
-//     backgroundColor: '#fff',
-//   },
-//   title: {
-//     fontSize: 24,
-//     marginBottom: 20,
-//     textAlign: 'center',
-//     fontWeight: 'bold',
-//   },
-//   input: {
-//     borderWidth: 1,
-//     borderColor: '#ccc',
-//     borderRadius: 8,
-//     padding: 12,
-//     marginBottom: 16,
-//   },
-//   registerLink: {
-//     marginTop: 16,
-//     textAlign: 'center',
-//     color: '#007BFF',
-//     textDecorationLine: 'underline',
-//   },
-// });
+
 
 export default LoginScreen;
