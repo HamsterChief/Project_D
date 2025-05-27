@@ -1,37 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, ImageBackground, TouchableOpacity } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
 import { loginStyles as styles} from '../styles/loginstyles';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isPressed, setIsPressed] = useState(false);
+  const [user, setUser] = useState();
 
   const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
   const validatePassword = (password: string) => password.length >= 6;
 
   const handleError = (message: string, error?: unknown) => {
-    console.error(message, error)
-    console.log(message + " " + error)
-    alert(message + "\n" + error)
+    console.error(message, error);
+    console.log(message + " " + error);
+    alert(message + "\n" + error);
   }
 
+  useEffect(() => {
+    const checkUser = async () => {
+      const storedUser = await AsyncStorage.getItem('user');
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+        // Navigate to Agenda if already logged in
+        navigation.navigate('Agenda');
+      }
+    };
+    checkUser();
+  }, []);
   const handleLogin = async () => {
-    // if (!validateEmail(email)) {
-    //   Alert.alert('Ongeldig e-mailadres', 'Voer een geldig e-mailadres in.');
-    //   return;
-    // }
-
-    // if (!validatePassword(password)) {
-    //   Alert.alert('Wachtwoord te kort', 'Je wachtwoord moet minstens 6 tekens bevatten.');
-    //   return;
-    // }
-
     try {
+      const user = { email, password };
       const response = await fetch('http://localhost:5133/api/auth/login', {
         method: 'POST',
         headers: {
@@ -41,6 +46,10 @@ const LoginScreen = () => {
       });
 
       if (response.ok) {
+        const userData = await response.json();
+        await AsyncStorage.setItem('user', JSON.stringify(userData));
+        setUser(userData);
+        
         Alert.alert('Succesvol ingelogd', 'Welkom terug!');
         navigation.navigate('Agenda');
       } else {

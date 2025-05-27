@@ -48,16 +48,27 @@ public class AuthController : ControllerBase
         if (!RegisterAndLoginMethods.ValidatePassword(loginUser.Password, user.Password))
             return Unauthorized("Fout: ongeldig wachtwoord.");
 
-        return Ok("Gelukt! Bezig met inloggen...");
+        return Ok(new { 
+            message = "Gelukt! Bezig met inloggen...", 
+            user = new { user.Id, user.Email } // Add more fields as needed
+        });
     }
 
-    // [HttpPut("change_password")]
-    // public async Task<IActionResult> Login([FromBody] User loginUser)
-    // {
-    //     var user = await _context.Users
-    //         .FirstOrDefaultAsync(u => u.Id == loginUser.Id);
-        
-    //     if (user == null)
-    //         return NotFound("Fout: geen account gevonden met huidige gegevens.");
-    // }
+    [HttpPut("change_password")]
+    public async Task<IActionResult> ChangePassword([FromBody] User loginUser)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == loginUser.Id);
+
+        if (user == null)
+            return NotFound("Fout: geen account gevonden met huidige gegevens.");
+
+        if (!RegisterAndLoginMethods.isValidPassword(loginUser.Password))
+            BadRequest("Wachtwoord voldoet niet aan de eisen.");
+
+        user.Password = RegisterAndLoginMethods.HashPassword(loginUser.Password);
+        await _context.SaveChangesAsync();
+
+        return Ok("Wachtwoord is veranderd");
+    }
 }

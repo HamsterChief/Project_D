@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Button, StyleSheet } from 'react-native';
 import { Audio } from 'expo-av';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Appointment = {
   id: string;
@@ -103,11 +104,17 @@ const AgendaScreen = () => {
     await sound.playAsync();
   };
 
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('user');
+    // Optionally reset user state if you use Context or Redux
+    navigation.navigate('Login');
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
         <Text style={styles.title}>Mijn Afspraken</Text>
-        <Text style={styles.logout} onPress={() => navigation.navigate('Login')}>
+        <Text style={styles.logout} onPress={() => handleLogout()}>
             Logout
         </Text>
         <Text style={styles.logout} onPress={() => navigation.navigate('Settings')}>

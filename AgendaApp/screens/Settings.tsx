@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Button, StyleSheet, TextInput, TouchableOpacity, ImageBackground } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFormState } from 'react-dom';
 
 type FormType = 'main' | 'password' | 'feedback' | 'bug';
-type FormItem = {
-  text: string
-  submissionDate: Date
-  userId: number
-  formType: FormType
-}
+// type FormItem = {
+//   text: string
+//   submissionDate: Date
+//   userId: number
+//   formType: FormType
+// }
 
 const SettingsScreen = () => {
     const navigation = useNavigation();
@@ -19,6 +21,7 @@ const SettingsScreen = () => {
 
     const [userId, setUserId] = useState("");
     const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [feedback, setFeedback] = useState('');
@@ -26,6 +29,15 @@ const SettingsScreen = () => {
 
     const [isPressed, setIsPressed] = useState(false);
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      const storedUser = await AsyncStorage.getItem('user');
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    };
+    fetchUser();
+  }, []);
 
   const handleError = (message: string, error?: unknown) => {
     console.error(message, error)
@@ -39,12 +51,18 @@ const SettingsScreen = () => {
       return;
     }
     try {
+      // const userObj = typeof user === 'string' ? JSON.parse(user) : user;
+      const payload = {
+        // Id: userObj.Id, // or userObj.Id, depending on your login response
+        Email: email, // or userObj.Email
+        Password: password,
+      };
       const response = await fetch('http://localhost:5133/api/auth/change_password', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ user, password }),
+        body: JSON.stringify( payload ),
       });
       if (response.ok)
       {
@@ -103,9 +121,9 @@ const SettingsScreen = () => {
 
   const renderMainMenu = () => (
     <>
-      <Button title="App instellingen" onPress={() => navigation.navigate('App-Instellingen')} />
-      <Button title="AI coach" onPress={() => navigation.navigate('AI-Coach')} />
-      <Button title="Meldingen" onPress={() => navigation.navigate('Meldingen')} />
+      <Button title="App instellingen" onPress={() => navigation.navigate('AppSettings')} />
+      {/* <Button title="AI coach" onPress={() => navigation.navigate('AI-Coach')} /> */}
+      <Button title="Meldingen" onPress={() => navigation.navigate('Meldingsinstellingen')} />
       <Button title="Wachtwoord veranderen" onPress={() => setCurrentForm('password')} />
       <Button title="App feedback" onPress={() => setCurrentForm('feedback')} />
       <Button title="Bug rapporteren" onPress={() => setCurrentForm('bug')} />
