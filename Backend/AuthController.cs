@@ -13,6 +13,23 @@ public class AuthController : ControllerBase {
         _context = context;
     }
 
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetUserById(int id)
+    {
+        var user = await _context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Id == id);
+
+        if (user == null)
+            return NotFound($"User with id {id} not found.");
+
+        // Voor veiligheid: haal eventueel password hash eruit voordat je terugstuurt
+        user.Password = null;
+
+        return Ok(user);
+    }
+
+    
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] User user)
     {
@@ -38,21 +55,18 @@ public class AuthController : ControllerBase {
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] User loginUser)
     {
-        var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.Email == loginUser.Email);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == loginUser.Email);
 
-        if (user != null){
-
-            Console.WriteLine(RegisterAndLoginMethods.HashPassword(loginUser.Password));
-            Console.WriteLine(user.Password);
-
-            return Ok("Loggin in successfull");
-        }
-
-        if (!RegisterAndLoginMethods.ValidatePassword(loginUser.Password, user.Password)){
+        if (user == null)
             return Unauthorized("Invalid login");
-        }
 
-        return Unauthorized("Invalid login");
+        // Controleer wachtwoord correct (geef plaintext in, user.Password is gehashed)
+        bool passwordValid = RegisterAndLoginMethods.ValidatePassword(loginUser.Password, user.Password);
+
+        if (!passwordValid)
+            return Unauthorized("Invalid login");
+
+        // Return enkel id en email, geen wachtwoord
+        return Ok(new { id = user.Id, email = user.Email });
     }
 }

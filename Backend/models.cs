@@ -42,8 +42,6 @@ public class TaskItem {
 
     public int UserId {get; set;}
 
-    [NotMapped]
-    public string UserEmail { get; set; }
 }
 
 

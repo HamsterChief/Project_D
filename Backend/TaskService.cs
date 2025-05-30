@@ -21,16 +21,19 @@ public class TaskService : ITaskService {
         if (taskItem.EndDate < taskItem.StartDate)
             return ServiceResult<TaskItem>.Failure("Einddatum moet na startdatum zijn.");
 
-        if (string.IsNullOrEmpty(taskItem.UserEmail))
-            return ServiceResult<TaskItem>.Failure("Gebruikersemail ontbreekt.");
+        if (taskItem.UserId <= 0)
+        {
+            Console.WriteLine($"Ontvangen userId: {taskItem.UserId}");
+            return ServiceResult<TaskItem>.Failure("Ongeldige gebruiker.");
+        }
+            
+            
 
-        // Gebruiker zoeken op e-mail
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == taskItem.UserEmail);
-
-        if (user == null)
+        var userExists = await _context.Users.AnyAsync(u => u.Id == taskItem.UserId);
+        if (!userExists)
             return ServiceResult<TaskItem>.Failure("Gebruiker niet gevonden.");
 
-        // Interne koppeling met UserId
+        // Taak maken
         var newTask = new TaskItem
         {
             Title = taskItem.Title,
@@ -38,10 +41,9 @@ public class TaskService : ITaskService {
             StartDate = taskItem.StartDate,
             EndDate = taskItem.EndDate,
             Finished = false,
-            UserId = user.Id
+            UserId = taskItem.UserId
         };
 
-        // Toevoegen aan DB
         _context.taskItems.Add(newTask);
         int saved = await _context.SaveChangesAsync();
 
@@ -50,16 +52,19 @@ public class TaskService : ITaskService {
             : ServiceResult<TaskItem>.Failure("Taak niet toegevoegd.");
     }
 
-
-
-    public async Task<ServiceResult<List<TaskItem>>> GetTasksOnDate(DateTime date)
-    { 
-        var startOfDay = date.Date;  
-        var endOfDay = date.Date.AddDays(1).AddTicks(-1);  
+    public async Task<ServiceResult<List<TaskItem>>> GetTasksOnDate(DateTime date, int userId)
+    {
+        var startOfDay = date.Date;
+        var endOfDay = startOfDay.AddDays(1);
 
         var tasks = await _context.taskItems
-            .Where(t => t.StartDate >= startOfDay && t.StartDate <= endOfDay || 
-                        t.EndDate >= startOfDay && t.EndDate <= endOfDay)
+            .Where(t =>
+                t.UserId == userId &&
+                (
+                    (t.StartDate >= startOfDay && t.StartDate < endOfDay) ||
+                    (t.EndDate >= startOfDay && t.EndDate < endOfDay)
+                )
+            )
             .ToListAsync();
 
         if (tasks.Any())
@@ -125,7 +130,7 @@ public class TaskService : ITaskService {
 
 public interface ITaskService {
     public Task<ServiceResult<TaskItem>> CreateTask(TaskItem taskItem);
-    public Task<ServiceResult<List<TaskItem>>> GetTasksOnDate (DateTime date);
+    public Task<ServiceResult<List<TaskItem>>> GetTasksOnDate (DateTime date, int UserId);
 
     public Task<ServiceResult<TaskItem>> EditTask(int id, TaskItem task);
 

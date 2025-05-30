@@ -1,9 +1,11 @@
 import { loginStyles as styles} from '../styles/loginstyles';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, ImageBackground, TouchableOpacity } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { parse } from '@babel/core';
 
 
 const LoginScreen = () => {
@@ -11,9 +13,27 @@ const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isPressed, setIsPressed] = useState(false);
+  const [user, setUser] = useState();
 
   const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
   const validatePassword = (password: string) => password.length >= 6;
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const storedUser = await AsyncStorage.getItem('user');
+      if (storedUser){
+        const parsedUser = JSON.parse(storedUser)
+        setUser(parsedUser)
+        
+        console.log()
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'Main' }],
+        });
+      }
+    }
+    checkUser()
+  }, [])
 
   const handleLogin = async () => {
     if (!validateEmail(email)) {
@@ -29,33 +49,37 @@ const LoginScreen = () => {
     try {
       const response = await fetch('http://localhost:5133/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
       if (response.ok) {
+        const user = await response.json();
+
+        // Sla alleen id en email op
+        await AsyncStorage.setItem('user', JSON.stringify({
+          id: user.id,
+          email: user.email,
+        }));
+
         Alert.alert('Succesvol ingelogd', 'Welkom terug!');
         navigation.reset({
           index: 0,
-          routes: [{ name: 'Main', params: { screen: 'Home', params: {email: email} } }],
+          routes: [{ name: 'Main' }],
         });
       } else {
-        const message = await response.text();
+        const errorText = await response.text();
+        Alert.alert('Login mislukt', errorText || 'Onbekende fout');
       }
     } catch (error) {
       console.error('Login error:', error);
       Alert.alert('Fout', 'Kon geen verbinding maken met de server.');
     }
-  };
+};
+
 
   return (
-    <ImageBackground
-      source={require('../assets/login.png')} // Path to your image
-      style={styles.background}
-      resizeMode="cover" // Or 'contain', depending on your design
-    >
+    <View style={styles.background}>
       <View style={styles.container}>
 
         <Text style={styles.title}>Inlogscherm</Text>
@@ -86,13 +110,13 @@ const LoginScreen = () => {
         >
           <Text style={styles.buttonText}>INLOGGEN</Text>
         </TouchableOpacity>
-
+        
         <Text style={styles.registerLink} onPress={() => navigation.navigate('Register')}>
           Geen account? Registreer hier
         </Text>
 
       </View>
-    </ImageBackground>
+    </View>
   );
 };
 

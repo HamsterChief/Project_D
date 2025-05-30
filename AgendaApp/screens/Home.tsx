@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { homeStyles } from '../styles/homeStyles';
-import CreateTaskModal from '../components/CreateTaskModal';
+import {CreateTaskModal} from '../components/CreateTaskModal';
 import { useRoute } from '@react-navigation/native';
 
 const HomeScreen = () => {
@@ -25,7 +25,7 @@ const HomeScreen = () => {
       <Text style={homeStyles.greeting}>{greeting}</Text>
       <Text style={homeStyles.date}>{dateText}</Text>
 
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={{
           marginTop: 40,
           padding: 15,
@@ -40,7 +40,7 @@ const HomeScreen = () => {
 
       
 
-      <CreateTaskModal visible={modalVisible} onClose={() => setModalVisible(false)} userEmail={userEmail} />
+      <CreateTaskModal visible={modalVisible} onClose={() => setModalVisible(false)} userEmail={userEmail} /> */}
     </View>
   );
 };
