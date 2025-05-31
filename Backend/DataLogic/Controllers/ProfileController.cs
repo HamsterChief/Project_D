@@ -14,23 +14,23 @@ public class ProfileController : ControllerBase
         _service = profileService;
     }
 
-    [HttpPut("editEmail/{id}")]
-    public async Task<IActionResult> EditEmail([FromRoute] int id, [FromBody] string newEmail)
-    {
-        var result = await _service.EditEmail(id, newEmail);
+    // [HttpPut("editEmail/{id}")]
+    // public async Task<IActionResult> EditContactEmail([FromBody] User updatedUser)
+    // {
+    //     var result = await _service.EditContactEmail(updatedUser);
 
-        if (result.StatusCode == 200)
-        {
-            return Ok(result.Data);
-        }
+    //     if (result.StatusCode == 200)
+    //     {
+    //         return Ok(result.Data);
+    //     }
 
-        return BadRequest(result.ErrorMessage);
-    }
+    //     return BadRequest(result.ErrorMessage);
+    // }
 
     [HttpPut("editPassword/{id}")]
-    public async Task<IActionResult> EditPassword([FromRoute] int id, [FromBody] String newPassword)
+    public async Task<IActionResult> EditPassword([FromBody] User updatedUser)
     {
-        var result = await _service.EditPassword(id, newPassword);
+        var result = await _service.EditPassword(updatedUser);
 
         if (result.StatusCode == 200)
         {

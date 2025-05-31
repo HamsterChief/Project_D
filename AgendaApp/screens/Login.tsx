@@ -48,6 +48,7 @@ const LoginScreen = () => {
       if (response.ok) {
         const userData = await response.json();
         await AsyncStorage.setItem('user', JSON.stringify(userData));
+        console.log('User data from API:', userData); // Check userID send in the state body during login
         setUser(userData);
         
         Alert.alert('Succesvol ingelogd', 'Welkom terug!');

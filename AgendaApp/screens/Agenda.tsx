@@ -114,11 +114,14 @@ const AgendaScreen = () => {
     <View style={styles.container}>
       <View style={styles.headerRow}>
         <Text style={styles.title}>Mijn Afspraken</Text>
-        <Text style={styles.logout} onPress={() => handleLogout()}>
+        <Text style={styles.textualButton} onPress={() => handleLogout()}>
             Logout
         </Text>
-        <Text style={styles.logout} onPress={() => navigation.navigate('Settings')}>
-            Settings
+        <Text style={styles.textualButton} onPress={() => navigation.navigate('Profile')}>
+            Profiel
+          </Text>
+        <Text style={styles.textualButton} onPress={() => navigation.navigate('Settings')}>
+            Instellingen
         </Text>
       </View>
 
@@ -188,7 +191,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
     gap: 10,
   },
-    logout: {
+    textualButton: {
     fontSize: 16,
     color: 'blue',
   },

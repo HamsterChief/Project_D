@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
+using System.Net.Mail;
 
 [ApiController]
 [Route("api/auth")]
@@ -48,8 +49,9 @@ public class AuthController : ControllerBase
         if (!RegisterAndLoginMethods.ValidatePassword(loginUser.Password, user.Password))
             return Unauthorized("Fout: ongeldig wachtwoord.");
 
-        return Ok(new { 
-            message = "Gelukt! Bezig met inloggen...", 
+        return Ok(new
+        {
+            message = "Gelukt! Bezig met inloggen...",
             user = new { user.Id, user.Email } // Add more fields as needed
         });
     }
@@ -71,4 +73,38 @@ public class AuthController : ControllerBase
 
         return Ok("Wachtwoord is veranderd");
     }
+
+    // https://dev.to/sammychris/how-to-implement-user-registration-and-email-verification-in-react-1map
+
+    // static string GenerateVerificationCode()
+    // {
+    //     Random random = new Random();
+    //     return random.Next(100000, 999999).ToString();
+    // }
+
+    // static void SendVerificationEmail(string recipientEmail, string code)
+    // {
+    //     try
+    //     {
+    //         MailMessage mail = new MailMessage();
+    //         SmtpClient smtpClient = new SmtpClient("smtp.gmail.com");
+    //         mail.From = new MailAddress("youremail@gmail.com");
+    //         mail.To.Add(recipientEmail);
+    //         mail.Subject = "Email Verification";
+    //         mail.Body = "Your verification code is: " + code;
+    //         smtpClient.Port = 587;
+    //         smtpClient.UseDefaultCredentials = false;
+    //         smtpClient.Credentials = new NetworkCredential("youremail@gmail.com", "yourpassword");
+    //         smtpClient.EnableSsl = true;
+    //         smtpClient.Send(mail);
+
+    //         Console.WriteLine("Verification email sent.");
+
+
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         Console.WriteLine("Error sending verification email: " + ex.Message);
+    //     }
+    // }
 }
