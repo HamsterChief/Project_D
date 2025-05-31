@@ -6,6 +6,8 @@ import AgendaScreen from './screens/Agenda';
 import RegisterScreen from './screens/Register';
 import AppSettingsScreen from './screens/AppSettings';
 
+
+
 const Stack = createStackNavigator();
 
 export default function App() {
