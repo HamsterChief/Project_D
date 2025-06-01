@@ -54,6 +54,8 @@ public class TaskService : ITaskService {
 
     public async Task<ServiceResult<List<TaskItem>>> GetTasksOnDate(DateTime date, int userId)
     {
+        Console.WriteLine($"Gekregen: date = {date}, userId = {userId}");
+        
         var startOfDay = date.Date;
         var endOfDay = startOfDay.AddDays(1);
 

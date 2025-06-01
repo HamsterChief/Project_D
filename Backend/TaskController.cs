@@ -31,6 +31,11 @@ public class TaskController : ControllerBase {
             return Ok(result.Data);
         }
 
+        if (result.Data == null)
+        {
+            return Ok(new List<TaskItem>());
+        }
+
         return BadRequest(result.ErrorMessage);
     }
   

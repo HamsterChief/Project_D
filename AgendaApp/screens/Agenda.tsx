@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import Calendar from '../components/Calendar'; 
-import { PlusButton, DisplayTasks } from '../utils/Tasks';
-import { initialAppointments } from '../utils/dbcon';
+import Calendar from '../components/Calendar';
+import TaskTimeline from '../components/TaskTimeLine';
+import { PlusButton, fetchTasksForDate } from '../utils/Tasks';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const AgendaScreen = () => {
   const [expanded, setExpanded] = useState(true);
   const [userId, setUserId] = useState<number | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -17,16 +21,26 @@ const AgendaScreen = () => {
         if (storedUser) {
           const parsedUser = JSON.parse(storedUser);
           setUserId(parsedUser.id);
-        } else {
-          setUserId(null);
         }
       } catch (error) {
-        console.error('Fout bij het laden van gebruiker:', error);
-        setUserId(null);
+        console.error('Gebruiker laden fout:', error);
       }
     };
     loadUser();
   }, []);
+
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      setLoading(true);
+      const data = await fetchTasksForDate(selectedDate, userId);
+      setTasks(data);
+      setLoading(false);
+    };
+
+    fetchTasks();
+  }, [selectedDate, userId]);
+
 
   return (
     <View style={styles.container}>
@@ -45,28 +59,24 @@ const AgendaScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {expanded && <Calendar />}
+      {expanded && (
+        <Calendar selectedDate={selectedDate} onDateChange={setSelectedDate} />
+      )}
 
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 8,
-        }}
-      >
+      <View style={styles.newTaskRow}>
         <Text style={{ color: '#333', fontSize: 16 }}>Nieuwe taak</Text>
-        {userId !== null && userId > 0 ? (
-          <PlusButton userId={userId} />
-        ) : (
-          <Text style={{ color: 'gray' }}>Gebruiker laden...</Text>
-        )}
+        {userId ? <PlusButton userId={userId} /> : <Text style={{ color: 'gray' }}>Gebruiker laden...</Text>}
       </View>
 
-      <DisplayTasks initialAppointments={initialAppointments} />
+      {loading ? (
+        <ActivityIndicator size="large" color="#3399ff" style={{ marginTop: 20 }} />
+      ) : (
+        <TaskTimeline tasks={tasks} />
+      )}
     </View>
   );
 };
+
 
 export default AgendaScreen;
 
@@ -99,5 +109,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingTop: 30,
+  },
+  newTaskRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
   },
 });

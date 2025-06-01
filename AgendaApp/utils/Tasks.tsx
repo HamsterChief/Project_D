@@ -8,6 +8,9 @@ import { Audio } from 'expo-av';
 import { TouchableOpacity } from 'react-native';
 import { CreateTaskModal } from '../components/CreateTaskModal';
 import { Appointment } from '../utils/dbcon';
+import { getLocalDateString } from '../components/Calendar';
+
+
 
 
 export const PlusButton = ({ userId }: { userId: number }) => {
@@ -30,6 +33,31 @@ export const PlusButton = ({ userId }: { userId: number }) => {
     </View>
   );
 };
+
+
+
+export const fetchTasksForDate = async (date: Date, userId: number | null) => {
+  if (!userId) return [];
+
+  const dateStr = getLocalDateString(date);
+  const url = `http://localhost:5133/api/task/date/${dateStr}/user/${userId}`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Serverfout: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fout bij ophalen van taken:', error);
+    return [];
+  }
+}
+
+
+
+
 
 const getTimeGroup = (date: Date) => {
   const hour = date.getHours();
