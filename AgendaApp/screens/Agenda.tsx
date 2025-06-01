@@ -124,6 +124,13 @@ const AgendaScreen = () => {
             Instellingen
         </Text>
       </View>
+    {/* // <View style={styles.container}>
+    //   <View style={styles.headerRow}>
+    //     <Text style={styles.title}>Mijn Afspraken</Text>
+    //     <Text style={styles.logout} onPress={() => navigation.navigate('Login')}>
+    //         Logout
+    //     </Text>
+    //   </View> */}
 
         <FlatList
           data={appointments}
@@ -167,6 +174,14 @@ const styles = StyleSheet.create({
   alignItems: 'center',
   paddingHorizontal: 16,
   marginBottom: 20,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    gap: 20,
+  },
+  link: {
+    fontSize: 16,
+    color: 'blue',
   },
   container: {
     flex: 1,

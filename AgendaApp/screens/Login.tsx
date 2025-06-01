@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, ImageBackground, TouchableOpacity } from 'react-native';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
 import { loginStyles as styles} from '../styles/loginstyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';

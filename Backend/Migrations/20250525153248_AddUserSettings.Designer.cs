@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -9,9 +10,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250525153248_AddUserSettings")]
+    partial class AddUserSettings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.5");
@@ -51,32 +54,6 @@ namespace Backend.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("appointmentItems");
-                });
-
-            modelBuilder.Entity("FormItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("FormType")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("SubmissionDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("formItems");
                 });
 
             modelBuilder.Entity("TaskItem", b =>
@@ -131,18 +108,6 @@ namespace Backend.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("AppointmentItem", b =>
-                {
-                    b.HasOne("User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("FormItem", b =>
             modelBuilder.Entity("UserSettings", b =>
                 {
                     b.Property<int>("Id")
@@ -172,7 +137,7 @@ namespace Backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("UserSettings");
-                }));
+                });
 
             modelBuilder.Entity("AppointmentItem", b =>
                 {

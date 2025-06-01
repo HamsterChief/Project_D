@@ -11,4 +11,6 @@ public class AppDbContext : DbContext
     public DbSet<FormItem> formItems => Set<FormItem>();
 
     public DbSet<AppointmentItem> appointmentItems => Set<AppointmentItem>();
+
+    public DbSet<UserSettings> UserSettings => Set<UserSettings>();
 }
