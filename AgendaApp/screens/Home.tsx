@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Pressable } from 'react-native';
 import { homeStyles } from '../styles/homeStyles';
-import CreateTaskModal from '../components/CreateTaskModal';
+import { CreateTaskModal } from '../components/CreateTaskModal';
 import { DisplayTasks, PlusButton } from '../utils/Tasks';
 import { useRoute } from '@react-navigation/native';
+import { initialAppointments } from '../utils/dbcon';
 
 const HomeScreen = () => {
   const route = useRoute();
@@ -44,7 +45,7 @@ const HomeScreen = () => {
         <PlusButton/>
       </View>
 
-      <DisplayTasks/>
+      <DisplayTasks initialAppointments={initialAppointments}/>
 
       <CreateTaskModal visible={modalVisible} onClose={() => setModalVisible(false)} userEmail={userEmail} />
     </View>

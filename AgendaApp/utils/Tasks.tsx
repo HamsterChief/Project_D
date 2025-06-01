@@ -7,6 +7,7 @@ import { useRoute } from '@react-navigation/native';
 import { Audio } from 'expo-av';
 import { TouchableOpacity } from 'react-native';
 import { CreateTaskModal } from '../components/CreateTaskModal';
+import { Appointment } from '../utils/dbcon';
 
 export const PlusButton = () => {
   const userEmail = (useRoute().params as any)?.email ?? '';
@@ -158,23 +159,27 @@ export const useAudioRecorder = () => {
   };
 };
 
-type Appointment = {
-  id: number;
-  email: string;
-  title: string;
-  description: string;
-  startDate: Date;
-  endDate: Date;
-  audioUri?: string;
-};
+// type Appointment = {
+//   id: number;
+//   email: string;
+//   title: string;
+//   description: string;
+//   startDate: Date;
+//   endDate: Date;
+//   audioUri?: string;
+// };
 
-const initialAppointments: Appointment[] = [
-  { id: 1, email: 'melvernvandijk@outlook.com', title: 'Meeting', description:'Meeting met Taha', startDate: new Date('2025-04-24T14:00'), endDate: new Date('2025-04-24T15:00') },
-  { id: 2, email: 'taha@gmail.com', title: 'Chillen', description:'Chillen met Henk', startDate: new Date('2025-04-25T09:30'), endDate: new Date('2025-04-24T10:00') },
-  { id: 3, email: 'lucathierry@live.nl', title: 'Lunch', description:'Lunch met team', startDate: new Date('2025-04-26T12:00'), endDate: new Date('2025-04-24T13:00') },
-];
+// const initialAppointments: Appointment[] = [
+//   { id: 1, email: 'melvernvandijk@outlook.com', title: 'Meeting', description:'Meeting met Taha', startDate: new Date('2025-04-24T14:00'), endDate: new Date('2025-04-24T15:00') },
+//   { id: 2, email: 'taha@gmail.com', title: 'Chillen', description:'Chillen met Henk', startDate: new Date('2025-04-25T09:30'), endDate: new Date('2025-04-24T10:00') },
+//   { id: 3, email: 'lucathierry@live.nl', title: 'Lunch', description:'Lunch met team', startDate: new Date('2025-04-26T12:00'), endDate: new Date('2025-04-24T13:00') },
+// ];
 
-export const DisplayTasks = () => {
+interface Props {
+  initialAppointments: Appointment[];
+}
+
+export const DisplayTasks: React.FC<Props> = ({ initialAppointments }) => {
   const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments);
 
   const handleAudioUriUpdate = (id: number, uri: string | null) => {
