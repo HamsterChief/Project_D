@@ -34,6 +34,12 @@ const LoginScreen = () => {
     checkUser()
   }, [])
 
+    const handleError = (message: string, error?: unknown) => {
+    console.error(message, error);
+    console.log(message + " " + error);
+    alert(message + "\n" + error);
+  }
+
   const handleLogin = async () => {
     try {
       const user = { email, password };

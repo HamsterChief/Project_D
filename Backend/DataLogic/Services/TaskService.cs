@@ -33,7 +33,7 @@ public class TaskService : ITaskService {
             return ServiceResult<TaskItem>.Failure("Gebruiker niet gevonden.");
         }
 
-        taskItem.User = user;
+        // taskItem.User = user;
         taskItem.Finished = false;
         _context.taskItems.Add(taskItem);
 

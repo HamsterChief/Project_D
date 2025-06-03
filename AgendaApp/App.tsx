@@ -10,7 +10,7 @@ import RegisterScreen from './screens/Register';
 import HomeScreen from './screens/Home';
 import AgendaScreen from './screens/Agenda';
 import ProfileScreen from './screens/Profile';
-import CoachScreen from './screens/Coach';
+// import CoachScreen from './screens/Coach';
 import SettingsScreen from './screens/Settings';
 import AppSettingsScreen from './screens/AppSettings';
 
@@ -56,7 +56,7 @@ const TabNavigator = () => (
         ),
       }}
     />
-    <Tab.Screen
+    {/* <Tab.Screen
       name="AI Coach"
       component={CoachScreen}
       options={{
@@ -67,7 +67,7 @@ const TabNavigator = () => (
           />
         ),
       }}  
-    />
+    /> */}
     <Tab.Screen
       name="Profiel"
       component={ProfileScreen}
