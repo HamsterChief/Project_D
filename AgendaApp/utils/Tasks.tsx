@@ -104,7 +104,7 @@ export const AudioRecorderButton = ({ appointment, onUri }: { appointment: Appoi
       onPress={handlePress}
       style={({ pressed }) => [pressed ? styles.pressed : styles.notPressed]}
     >
-      <Image style={styles.icon} source={require('../assets/IconPlus.png')} />
+      <Image style={styles.icon} source={audioUri ? require('../assets/IconSoundPlay.png') : require('../assets/IconSoundRecord.png')}/>
     </Pressable>
   );
 }
