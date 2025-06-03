@@ -44,6 +44,7 @@ const RegisterScreen: React.FC = () => {
 
       if (response.ok) {
         Alert.alert('Succes', 'Registratie gelukt!');
+        alert("aaa")
         navigation.navigate('Login');
       } else {
         const error = await response.text();
@@ -57,14 +58,10 @@ const RegisterScreen: React.FC = () => {
   };
 
   return (
-    <ImageBackground
-      source={require('../assets/login.png')} // Use same background image as login screen
-      style={styles.background}
-      resizeMode="cover"
-    >
+    <View style={styles.background}>
       <View style={styles.container}>
         <Text style={styles.title}>Registreer</Text>
-
+        
         <TextInput
           placeholder="E-mail"
           placeholderTextColor='#909090'
@@ -94,7 +91,7 @@ const RegisterScreen: React.FC = () => {
           Al een account? Inloggen
         </Text>
       </View>
-    </ImageBackground>
+    </View>
   );
 };
 

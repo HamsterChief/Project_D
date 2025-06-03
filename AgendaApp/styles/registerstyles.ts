@@ -7,14 +7,14 @@ export const registerstyles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#e6f3ff', // fallback color in case the image fails to load
+    backgroundColor: '#fff8e7',
   },
   container: {
     width: '90%',
     maxWidth: 400,
     padding: 30,
     borderRadius: 25,
-    backgroundColor: 'rgba(240, 248, 255, 0.7)', // soft light blue transparent background
+    backgroundColor: 'rgba(240, 248, 255, 0.7)', // zachte lichtblauwe transparante laag
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -37,15 +37,16 @@ export const registerstyles = StyleSheet.create({
     fontSize: 26,
     fontWeight: '600',
     marginBottom: 25,
-    color: '#003366',
+    color: '#333',
     textAlign: 'center',
   },
   button: {
-    backgroundColor: '#3399ff',
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 10,
-    marginTop: 10,
+  backgroundColor: '#333',
+  paddingVertical: 14,
+  paddingHorizontal: 40,
+  borderRadius: 12,
+  marginTop: 10,
+  width: '100%',
   },
   buttonText: {
     color: 'white',
@@ -53,11 +54,23 @@ export const registerstyles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
   },
+  hoveredButton: {
+  backgroundColor: '#555', // iets lichtere tint bij indrukken
+  },
   registerLink: {
-    marginTop: 18,
-    color: '#0066cc',
-    fontSize: 14,
-    textDecorationLine: 'underline',
-    textAlign: 'center',
+  marginTop: 16,
+  backgroundColor: '#fff',
+  borderColor: '#333',
+  borderWidth: 1,
+  paddingVertical: 14,
+  paddingHorizontal: 40,
+  borderRadius: 12,
+  width: '100%',
+  },
+  registerLinkText: {
+  color: '#333',
+  fontWeight: 'bold',
+  fontSize: 16,
+  textAlign: 'center',
   },
 });

@@ -11,50 +11,62 @@ public class TaskService : ITaskService {
 
     public async Task<ServiceResult<TaskItem>> CreateTask(TaskItem taskItem)
     {
+        // Validaties
         if (string.IsNullOrEmpty(taskItem.Title))
-        {
             return ServiceResult<TaskItem>.Failure("Titel is verplicht.");
-        }
 
         if (taskItem.StartDate < DateTime.Now)
-        {
             return ServiceResult<TaskItem>.Failure("Startdatum moet in de toekomst zijn.");
-        }
 
         if (taskItem.EndDate < taskItem.StartDate)
-        {
             return ServiceResult<TaskItem>.Failure("Einddatum moet na startdatum zijn.");
-        }
 
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == taskItem.UserId);
-
-        if (user == null)
+        if (taskItem.UserId <= 0)
         {
+            Console.WriteLine($"Ontvangen userId: {taskItem.UserId}");
+            return ServiceResult<TaskItem>.Failure("Ongeldige gebruiker.");
+        }
+            
+            
+
+        var userExists = await _context.Users.AnyAsync(u => u.Id == taskItem.UserId);
+        if (!userExists)
             return ServiceResult<TaskItem>.Failure("Gebruiker niet gevonden.");
-        }
 
-        taskItem.User = user;
-        taskItem.Finished = false;
-        _context.taskItems.Add(taskItem);
-
-        int n = await _context.SaveChangesAsync();
-
-        if (n > 0)
+        // Taak maken
+        var newTask = new TaskItem
         {
-            return ServiceResult<TaskItem>.SuccessResult(taskItem);
-        }
-        return ServiceResult<TaskItem>.Failure("Taak niet toegevoegd.");
+            Title = taskItem.Title,
+            Description = taskItem.Description,
+            StartDate = taskItem.StartDate,
+            EndDate = taskItem.EndDate,
+            Finished = false,
+            UserId = taskItem.UserId
+        };
+
+        _context.taskItems.Add(newTask);
+        int saved = await _context.SaveChangesAsync();
+
+        return saved > 0
+            ? ServiceResult<TaskItem>.SuccessResult(newTask)
+            : ServiceResult<TaskItem>.Failure("Taak niet toegevoegd.");
     }
 
-
-    public async Task<ServiceResult<List<TaskItem>>> GetTasksOnDate(DateTime date)
+    public async Task<ServiceResult<List<TaskItem>>> GetTasksOnDate(DateTime date, int userId)
     {
-        var startOfDay = date.Date;  
-        var endOfDay = date.Date.AddDays(1).AddTicks(-1);  
+        Console.WriteLine($"Gekregen: date = {date}, userId = {userId}");
+        
+        var startOfDay = date.Date;
+        var endOfDay = startOfDay.AddDays(1);
 
         var tasks = await _context.taskItems
-            .Where(t => t.StartDate >= startOfDay && t.StartDate <= endOfDay || 
-                        t.EndDate >= startOfDay && t.EndDate <= endOfDay)
+            .Where(t =>
+                t.UserId == userId &&
+                (
+                    (t.StartDate >= startOfDay && t.StartDate < endOfDay) ||
+                    (t.EndDate >= startOfDay && t.EndDate < endOfDay)
+                )
+            )
             .ToListAsync();
 
         if (tasks.Any())
@@ -120,7 +132,7 @@ public class TaskService : ITaskService {
 
 public interface ITaskService {
     public Task<ServiceResult<TaskItem>> CreateTask(TaskItem taskItem);
-    public Task<ServiceResult<List<TaskItem>>> GetTasksOnDate (DateTime date);
+    public Task<ServiceResult<List<TaskItem>>> GetTasksOnDate (DateTime date, int UserId);
 
     public Task<ServiceResult<TaskItem>> EditTask(int id, TaskItem task);
 

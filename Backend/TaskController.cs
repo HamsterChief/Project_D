@@ -23,17 +23,22 @@ public class TaskController : ControllerBase {
         return BadRequest(result.ErrorMessage);
     }
 
-    [HttpGet("date/{date}")]
-    public async Task<IActionResult> GetTasksOnDate([FromRoute] DateTime date){
-        var result = await _service.GetTasksOnDate(date);
+    [HttpGet("date/{date}/user/{userId}")]
+    public async Task<IActionResult> GetTasksOnDate([FromRoute] DateTime date, [FromRoute] int userId){
+        var result = await _service.GetTasksOnDate(date, userId);
 
         if (result.StatusCode == 200){
             return Ok(result.Data);
         }
 
+        if (result.Data == null)
+        {
+            return Ok(new List<TaskItem>());
+        }
+
         return BadRequest(result.ErrorMessage);
     }
-
+  
     [HttpPut("edit/{id}")]
     public async Task<IActionResult> EditTask([FromRoute] int id, [FromBody] TaskItem task)
     {

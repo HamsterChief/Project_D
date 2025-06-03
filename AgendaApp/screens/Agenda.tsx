@@ -1,108 +1,51 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Button, StyleSheet } from 'react-native';
 import { Audio } from 'expo-av';
 import { useNavigation } from '@react-navigation/native';
+import { View, TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
+import Calendar from '../components/Calendar';
+import TaskTimeline from '../components/TaskTimeLine';
+import { PlusButton, fetchTasksForDate } from '../utils/Tasks';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-type Appointment = {
-  id: string;
-  title: string;
-  date: string;
-  audioUri?: string;
-};
-
-const initialAppointments: Appointment[] = [
-  { id: '1', title: 'Meeting met Taha', date: '2025-04-24 14:00' },
-  { id: '2', title: 'Chillen met Henk', date: '2025-04-25 09:30' },
-  { id: '3', title: 'Lunch met team', date: '2025-04-26 12:00' },
-];
 
 const AgendaScreen = () => {
   const navigation = useNavigation();
-  const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [expanded, setExpanded] = useState(true);
+  const [userId, setUserId] = useState<number | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    return sound
-      ? () => {
-          sound.unloadAsync();
+    const loadUser = async () => {
+      try {
+        const storedUser = await AsyncStorage.getItem('user');
+        if (storedUser) {
+          const parsedUser = JSON.parse(storedUser);
+          setUserId(parsedUser.id);
         }
-      : undefined;
-  }, [sound]);
-
-  const startRecording = async () => {
-    try {
-      const permission = await Audio.requestPermissionsAsync();
-      if (permission.status !== 'granted') {
-        alert('Microfoon toestemming is nodig om op te nemen!');
-        return;
+      } catch (error) {
+        console.error('Gebruiker laden fout:', error);
       }
+    };
+    loadUser();
+  }, []);
 
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      });
 
-      const recordingOptions: Audio.RecordingOptions = {
-        android: {
-          extension: '.m4a',
-          outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_MPEG_4,
-          audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_AAC,
-          sampleRate: 44100,
-          numberOfChannels: 2,
-          bitRate: 128000,
-        },
-        ios: {
-          extension: '.caf',
-          audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_HIGH,
-          sampleRate: 44100,
-          numberOfChannels: 2,
-          bitRate: 128000,
-          linearPCMBitDepth: 16,
-          linearPCMIsBigEndian: false,
-          linearPCMIsFloat: false,
-        },
-        web: {
-          mimeType: 'audio/webm',
-          bitsPerSecond: 128000,
-        },
-      };
+  useEffect(() => {
+    const fetchTasks = async () => {
+      setLoading(true);
+      const data = await fetchTasksForDate(selectedDate, userId);
+      setTasks(data);
+      setLoading(false);
+    };
 
-      const { recording } = await Audio.Recording.createAsync(recordingOptions);
-      setRecording(recording);
-    } catch (err) {
-      console.error('Fout bij opnemen', err);
-    }
-  };
+    fetchTasks();
+  }, [selectedDate, userId]);
 
-  const stopRecording = async () => {
-    if (!recording) return;
-
-    await recording.stopAndUnloadAsync();
-    const uri = recording.getURI();
-
-    // Voeg de nieuwe opname toe als nieuwe afspraak
-    setAppointments((prev) => [
-      ...prev,
-      {
-        id: (prev.length + 1).toString(),
-        title: `Opname ${new Date().toLocaleTimeString()}`,
-        date: new Date().toLocaleString(),
-        audioUri: uri || undefined,
-      },
-    ]);
-
-    setRecording(null);
-    console.log('Audio opgeslagen bij:', uri);
-  };
-
-  const playRecording = async (uri: string) => {
-    const { sound } = await Audio.Sound.createAsync({ uri });
-    setSound(sound);
-    await sound.setVolumeAsync(1.0); // volume op maximaal
-    await sound.playAsync();
-  };
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem('user');
@@ -112,60 +55,44 @@ const AgendaScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerRow}>
-        <Text style={styles.title}>Mijn Afspraken</Text>
+      <View style={styles.toggleRow}>
+        <Text style={styles.title}>Agenda</Text>
         <Text style={styles.textualButton} onPress={() => handleLogout()}>
             Logout
         </Text>
-        <Text style={styles.textualButton} onPress={() => navigation.navigate('Profile')}>
-            Profiel
-          </Text>
-        <Text style={styles.textualButton} onPress={() => navigation.navigate('Settings')}>
-            Instellingen
-        </Text>
-      </View>
-    {/* // <View style={styles.container}>
-    //   <View style={styles.headerRow}>
-    //     <Text style={styles.title}>Mijn Afspraken</Text>
-    //     <Text style={styles.logout} onPress={() => navigation.navigate('Login')}>
-    //         Logout
-    //     </Text>
-    //   </View> */}
-
-        <FlatList
-          data={appointments}
-          renderItem={({ item }) => (
-            <View style={styles.item}>
-              <Text style={styles.text}>{item.title}</Text>
-              <Text style={styles.text}>{item.date}</Text>
-              <Button
-                title="Herinnering"
-                onPress={() => alert(`Herinnering voor ${item.title}`)}
-              />
-              {item.audioUri && (
-                <Button title="Afspelen" onPress={() => playRecording(item.audioUri!)} />
-              )}
-            </View>
-          )}
-          keyExtractor={(item) => item.id}
-        />
-
-        {/* <View style={styles.item}>
-        <Button
-            title = "Settings"
-            onPress={() => navigation.navigate('Settings')}
-        />
-        </View> */}
-
-        <View style={styles.audioControls}>
-          <Button
-            title={recording ? 'Stop opname' : 'Start opname'}
-            onPress={recording ? stopRecording : startRecording}
+        <TouchableOpacity
+          onPress={() => setExpanded(prev => !prev)}
+          style={styles.toggleButton}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <FontAwesome
+            name={expanded ? 'chevron-up' : 'chevron-down'}
+            size={28}
+            color="#333"
           />
-        </View>
+        </TouchableOpacity>
       </View>
-    );
-  };
+
+      {expanded && (
+        <Calendar selectedDate={selectedDate} onDateChange={setSelectedDate} />
+      )}
+
+      <View style={styles.newTaskRow}>
+        <Text style={{ color: '#333', fontSize: 16 }}>Nieuwe taak</Text>
+        {userId ? <PlusButton userId={userId} /> : <Text style={{ color: 'gray' }}>Gebruiker laden...</Text>}
+      </View>
+
+      {loading ? (
+        <ActivityIndicator size="large" color="#3399ff" style={{ marginTop: 20 }} />
+      ) : (
+        <TaskTimeline tasks={tasks} />
+      )}
+    </View>
+  );
+};
+
+
+export default AgendaScreen;
 
 const styles = StyleSheet.create({
   headerRow: {
@@ -185,8 +112,15 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    backgroundColor: '#fff8e7',
     padding: 20,
-    backgroundColor: '#fff',
+  },
+  toggleRow: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+    paddingVertical: 16,
   },
   item: {
   marginBottom: 20,
@@ -195,9 +129,11 @@ const styles = StyleSheet.create({
   borderRadius: 10,
   },
   title: {
-    fontSize: 24,
-    marginBottom: 20,
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#333',
+    textAlign: 'center',
+    paddingTop: 30,
   },
   text: {
     marginBottom: 5,
@@ -206,10 +142,24 @@ const styles = StyleSheet.create({
     marginTop: 30,
     gap: 10,
   },
+  toggleButton: {
+    position: 'absolute',
+    right: 0,
+    top: '50%',
+    transform: [{ translateY: -14 }],
+    padding: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 30,
+  },
+  newTaskRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
     textualButton: {
     fontSize: 16,
     color: 'blue',
   },
 });
-
-export default AgendaScreen;
