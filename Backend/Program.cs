@@ -3,41 +3,39 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-var builder = WebApplication.CreateBuilder(args);
-
-
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=Database.db"));
-
-builder.Services.AddScoped<IFormService, FormService>();
-
-builder.Services.AddControllers();
-
-builder.Services.AddScoped<UserSettingsService>();
-
-
-builder.Services.AddCors(options =>
+public class Program
 {
-    options.AddPolicy("AllowFrontend", policy =>
+    public static void Main(string[] args)
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
-});
-builder.WebHost.UseUrls("http://0.0.0.0:5133");
+        var builder = WebApplication.CreateBuilder(args);
 
-var app = builder.Build();
+        builder.Services.AddScoped<ITaskService, TaskService>();
 
+        builder.Services.AddDbContext<AppDbContext>(options =>
+            options.UseSqlite("Data Source=Database.db"));
 
-// if (app.Environment.IsDevelopment())
-// {
-//     app.UseSwagger();
-//     app.UseSwaggerUI();
-// }
+        builder.Services.AddControllers();
+        builder.Services.AddScoped<IFormService, FormService>();
+        builder.Services.AddScoped<UserSettingsService>();
 
-app.UseCors("AllowFrontend");
-app.UseHttpsRedirection();
-app.MapControllers(); 
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowFrontend", policy =>
+            {
+                policy.AllowAnyOrigin()
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
+            });
+        });
 
-app.Run();
+        builder.WebHost.UseUrls("http://0.0.0.0:5133");
+
+        var app = builder.Build();
+
+        app.UseCors("AllowFrontend");
+        app.UseHttpsRedirection();
+        app.MapControllers();
+
+        app.Run();
+    }
+}
