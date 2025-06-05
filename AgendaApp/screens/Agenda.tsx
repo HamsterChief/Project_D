@@ -25,7 +25,7 @@ const AgendaScreen = () => {
         const storedUser = await AsyncStorage.getItem('user');
         if (storedUser) {
           const parsedUser = JSON.parse(storedUser);
-          setUserId(parsedUser.id);
+          setUserId(parsedUser.user.id);
         }
       } catch (error) {
         console.error('Gebruiker laden fout:', error);
@@ -47,19 +47,19 @@ const AgendaScreen = () => {
   }, [selectedDate, userId]);
 
 
-  const handleLogout = async () => {
-    await AsyncStorage.removeItem('user');
-    // Optionally reset user state if you use Context or Redux
-    navigation.navigate('Login');
-  };
+  // const handleLogout = async () => {
+  //   await AsyncStorage.removeItem('user');
+  //   // Optionally reset user state if you use Context or Redux
+  //   navigation.navigate('Login');
+  // };
 
   return (
     <View style={styles.container}>
       <View style={styles.toggleRow}>
         <Text style={styles.title}>Agenda</Text>
-        <Text style={styles.textualButton} onPress={() => handleLogout()}>
+        {/* <Text style={styles.textualButton} onPress={() => handleLogout()}>
             Logout
-        </Text>
+        </Text> */}
         <TouchableOpacity
           onPress={() => setExpanded(prev => !prev)}
           style={styles.toggleButton}

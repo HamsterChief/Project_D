@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Button, StyleSheet, TextInput, TouchableOpacity, ImageBackground } from 'react-native';
+import { View, Text, FlatList, Button, StyleSheet, TextInput, TouchableOpacity, ImageBackground, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFormState } from 'react-dom';
 
-type SubpageType = 'main' | 'about' | 'activity'
+type SubpageType = 'about' | 'activity'
 type Post = {
   id: number;
 }
@@ -13,12 +12,10 @@ const ProfileScreen = () => {
     const [user, setUser] = useState<string>('');
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
 
-    const [currentSubpage, setCurrentSubpage] = useState<SubpageType>('main');
+    const [currentSubpage, setCurrentSubpage] = useState<SubpageType>('about');
 
-    const [posts] = useState<Post[]>();
+    const [posts] = useState<Post[]>([]);
 
     const navigation = useNavigation();
 
@@ -40,32 +37,24 @@ const ProfileScreen = () => {
         alert(message + "\n" + error)
     }
 
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('user');
+    navigation.navigate('Login');
+  };
+
   const renderAboutPage = () => (
     <>
       <Text style={styles.textualButton}>Email: {email}</Text>
-      <Text style={styles.textualButton}>Prestaties: {}</Text>
-      <Text style={styles.textualButton}>Grafieken: {}</Text>
+      {/* <Text style={styles.textualButton}>Prestaties: {}</Text>
+      <Text style={styles.textualButton}>Statistieken: {}</Text> */}
       <Button title="Activiteit" onPress={() => setCurrentSubpage('activity')} />
     </>
   );
-  const renderTimelinePage = () => (
+  const renderActivityPage = () => (
     <>
     <View style={styles.headerRow}>
-      <Text style={styles.textualButton}>hi</Text>
+      <Text style={styles.textualButton}>Mijn activiteit</Text>
       <Button title="Overzicht" onPress={() => setCurrentSubpage('about')} />
-      <FlatList
-        data={posts}
-        renderItem={({ item }) => (
-          <View style={styles.item}>
-            <Text style={styles.text}>{item.id}</Text>
-            <Button
-              title="Post"
-              onPress={() => alert(`Herinnering voor ${item.title}`)}
-            />
-          </View>
-        )}
-        keyExtractor={(item) => item.id}
-      />
     </View>
     </>
   );
@@ -79,15 +68,17 @@ return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
         <Text style={styles.title}>{username}'s Profiel</Text>
-        <Text style={styles.textualButton} onPress={() => navigation.navigate('Agenda')}>Terug</Text>
+        {/* <Text style={styles.textualButton} onPress={() => navigation.navigate('Agenda')}>Terug</Text> */}
         <Text >-</Text>
         <Text style={styles.textualButton} onPress={() => navigation.navigate('Settings')}>Instellingen</Text>
+        <Text>-</Text>
+        <Text style={styles.logout} onPress={() => handleLogout()}>Logout</Text>
       </View>
-        {currentSubpage === 'main' && renderAboutPage()}
-        {currentSubpage === 'activity' && renderTimelinePage()}
+        {currentSubpage === 'about' && renderAboutPage()}
+        {currentSubpage === 'activity' && renderActivityPage()}
     </View>
     </ImageBackground>
-);
+  );
 };
 
 const styles = StyleSheet.create({
@@ -106,6 +97,7 @@ const styles = StyleSheet.create({
   buttonText: { color: '#000000', fontWeight: 'bold' },
   cancel: { color: 'blue', marginTop: 15, textAlign: 'center' },
   textualButton: {fontSize: 16, color: 'black'},
+  logout: {fontSize: 16, color: 'blue'},
 });
 
 export default ProfileScreen;

@@ -1,9 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const WelcomeScreen = () => {
   const navigation = useNavigation();
+  const [user, setUser] = useState();
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const storedUser = await AsyncStorage.getItem('user');
+      if (storedUser){
+        const parsedUser = JSON.parse(storedUser)
+        setUser(parsedUser)
+        
+        console.log()
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'Main' }],
+        });
+      }
+    }
+    checkUser()
+  }, [])
 
   return (
     <View style={styles.container}>
@@ -12,7 +31,7 @@ const WelcomeScreen = () => {
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate('Login')}
+        onPress={() => navigation.navigate('Login' as never)}
       >
         <Text style={styles.buttonText}>Inloggen</Text>
       </TouchableOpacity>

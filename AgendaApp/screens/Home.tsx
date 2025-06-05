@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { homeStyles } from '../styles/homeStyles';
 import {CreateTaskModal} from '../components/CreateTaskModal';
 import { useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = () => {
+  const navigation = useNavigation();
+
   const route = useRoute();
   const today = new Date();
   const hour = today.getHours();
@@ -20,10 +24,19 @@ const HomeScreen = () => {
   const userEmail = (route.params as any)?.email ?? '';
   console.log('userEmail in Home:', userEmail);
 
+
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('user');
+    navigation.navigate('Login');
+  };
+
   return (
     <View style={homeStyles.container}>
       <Text style={homeStyles.greeting}>{greeting}</Text>
       <Text style={homeStyles.date}>{dateText}</Text>
+      <Text style={styles.textualButton} onPress={() => handleLogout()}>
+          Logout
+      </Text>
 
       {/* <TouchableOpacity
         style={{
@@ -44,5 +57,12 @@ const HomeScreen = () => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+      textualButton: {
+    fontSize: 16,
+    color: 'blue',
+  },
+})
 
 export default HomeScreen;

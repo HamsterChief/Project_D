@@ -142,7 +142,7 @@ const SettingsScreen = () => {
       <Button title="Wachtwoord veranderen" onPress={() => setCurrentForm('password')} />
       <Button title="App feedback" onPress={() => setCurrentForm('feedback')} />
       <Button title="Bug rapporteren" onPress={() => setCurrentForm('bug')} />
-      <Button title="Terug" onPress={() => navigation.navigate('Agenda')} />
+      <Button title="Terug" onPress={() => navigation.navigate('Main')} />
 
       {/* <Button title="Accountinstellingen" onPress={() => navigation.navigate('subsettings/AccountSettings')} /> */}
       {/* <Button title="Privacyinstellingen" onPress={() => navigation.navigate('subsettings/PrivacySettings')} /> */}

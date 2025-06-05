@@ -26,6 +26,8 @@ export const CreateTaskModal: React.FC<Props> = ({ visible, onClose, userId }) =
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [pickerType, setPickerType] = useState<'start' | 'end' | null>(null);
 
+  const isWeb = Platform.OS === 'web';
+
   
 
   const formatDateTime = (date: Date | null) => {

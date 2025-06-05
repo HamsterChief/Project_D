@@ -116,7 +116,7 @@ const AppSettingsScreen: React.FC = () => {
         ))}
       </View>
 
-      <Button title="Terug" onPress={() => navigation.navigate('Agenda' as never)} />
+      <Button title="Terug" onPress={() => navigation.navigate('Settings' as never)} />
 
       {/* Instellingenopties */}
       <ScrollView style={styles.optionsContainer}>

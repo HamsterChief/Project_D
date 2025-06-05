@@ -14,25 +14,22 @@ const LoginScreen = () => {
   const [isPressed, setIsPressed] = useState(false);
   const [user, setUser] = useState();
 
-  const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
-  const validatePassword = (password: string) => password.length >= 6;
-
-  useEffect(() => {
-    const checkUser = async () => {
-      const storedUser = await AsyncStorage.getItem('user');
-      if (storedUser){
-        const parsedUser = JSON.parse(storedUser)
-        setUser(parsedUser)
+  // useEffect(() => {
+  //   const checkUser = async () => {
+  //     const storedUser = await AsyncStorage.getItem('user');
+  //     if (storedUser){
+  //       const parsedUser = JSON.parse(storedUser)
+  //       setUser(parsedUser)
         
-        console.log()
-        navigation.reset({
-            index: 0,
-            routes: [{ name: 'Main' }],
-        });
-      }
-    }
-    checkUser()
-  }, [])
+  //       console.log()
+  //       navigation.reset({
+  //           index: 0,
+  //           routes: [{ name: 'Main' }],
+  //       });
+  //     }
+  //   }
+  //   checkUser()
+  // }, [])
 
     const handleError = (message: string, error?: unknown) => {
     console.error(message, error);
@@ -50,13 +47,16 @@ const LoginScreen = () => {
       });
 
       if (response.ok) {
-        const user = await response.json();
+        const userData = await response.json();
 
         // Sla alleen id en email op
-        await AsyncStorage.setItem('user', JSON.stringify({
-          id: user.id,
-          email: user.email,
-        }));
+        // await AsyncStorage.setItem('user', JSON.stringify({
+        //   id: user.id,
+        //   email: user.email,
+        // }));
+        await AsyncStorage.setItem('user', JSON.stringify(userData));
+        console.log('User data from API:', userData); // Check userID send in the state body during login
+        setUser(userData);
 
         Alert.alert('Succesvol ingelogd', 'Welkom terug!');
         navigation.reset({
