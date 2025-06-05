@@ -39,10 +39,10 @@ public class TaskController : ControllerBase {
         return BadRequest(result.ErrorMessage);
     }
   
-    [HttpPut("edit/{id}")]
-    public async Task<IActionResult> EditTask([FromRoute] int id, [FromBody] TaskItem task)
+    [HttpPut("edit/{id}/user/{userId}")]
+    public async Task<IActionResult> EditTask([FromRoute] int id, [FromRoute] int userId, [FromBody] TaskItem task)
     {
-        var result = await _service.EditTask(id, task);
+        var result = await _service.EditTask(id, userId, task);
 
         if (result.StatusCode == 200)
         {

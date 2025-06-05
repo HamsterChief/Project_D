@@ -52,7 +52,7 @@ export const CreateTaskModal: React.FC<Props> = ({ visible, onClose, userId }) =
     }
 
     try {
-      const response = await fetch('http://localhost/api/task/create', {
+      const response = await fetch('http://localhost:5133/api/task/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

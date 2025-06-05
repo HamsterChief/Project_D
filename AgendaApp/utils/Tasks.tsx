@@ -9,7 +9,7 @@ import { TouchableOpacity } from 'react-native';
 import { CreateTaskModal } from '../components/CreateTaskModal';
 import { Appointment } from '../utils/dbcon';
 import { getLocalDateString } from '../components/Calendar';
-
+import { Task } from '../utils/Types'
 
 
 
@@ -54,6 +54,33 @@ export const fetchTasksForDate = async (date: Date, userId: number | null) => {
     return [];
   }
 }
+
+
+
+export const editTask = async (task: Task, userId: number | null) => {
+  const url = `http://localhost:5133/api/task/edit/${task.id}/user/${userId}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(task),
+    });
+
+    if (!response.ok) {
+      const message = await response.text();
+      throw new Error(`Fout bij bewerken van taak: ${message}`);
+    }
+
+    const updatedTask = await response.json();
+    return updatedTask;
+  } catch (error) {
+    console.error('Fout in editTask():', error);
+    throw error;
+  }
+};
 
 
 

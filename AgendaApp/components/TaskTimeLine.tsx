@@ -1,30 +1,27 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native';
-
-interface Task {
-  id: number;
-  title: string;
-  description?: string;
-  startDate: string; // ISO string
-  endDate: string;   // ISO string
-}
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { Task } from '../utils/Types';
 
 const MINUTES_IN_DAY = 1440;
 const pxPerMinute = 1.5;
 
-const TaskTimeline = ({ tasks }: { tasks: Task[] }) => {
+interface TaskTimelineProps {
+  tasks: Task[];
+  onTaskPress: (task: Task) => void;
+}
+
+const TaskTimeline: React.FC<TaskTimelineProps> = ({ tasks, onTaskPress }) => {
   const timelineHeight = MINUTES_IN_DAY * pxPerMinute;
   const hours = Array.from({ length: 25 }, (_, i) => i);
 
   const getMinutesFromMidnight = (dateStr: string) => {
-  const [datePart, timePart] = dateStr.split('T');
-  const [hours, minutes] = timePart.split(':').map(Number);
-  return hours * 60 + minutes;
-};
+    const [_, timePart] = dateStr.split('T');
+    const [hours, minutes] = timePart.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ height: timelineHeight + 40 }}>
-      {/* Horizontale lijnen en tijdlabels */}
       {hours.map(hour => (
         <View key={hour} style={[styles.hourRow, { top: hour * 60 * pxPerMinute }]}>
           <Text style={styles.timeLabel}>
@@ -34,23 +31,25 @@ const TaskTimeline = ({ tasks }: { tasks: Task[] }) => {
         </View>
       ))}
 
-      {/* Verticale blauwe lijn (tijdlijn) */}
       <View style={[styles.timeline, { height: timelineHeight }]} />
 
-      {/* Taken */}
       <View style={styles.tasksContainer}>
         {tasks.map(task => {
-          console.log('Rendering task:', task);
           const start = getMinutesFromMidnight(task.startDate);
           const end = getMinutesFromMidnight(task.endDate);
           const top = start * pxPerMinute;
           const height = Math.max((end - start) * pxPerMinute, 20);
 
           return (
-            <View key={task.id} style={[styles.taskBlock, { top, height }]}>
+            <TouchableOpacity
+              key={task.id}
+              style={[styles.taskBlock, { top, height }]}
+              onPress={() => onTaskPress(task)}
+              activeOpacity={0.7}
+            >
               <Text style={styles.taskTitle}>{task.title}</Text>
               {task.description && <Text style={styles.taskDescription}>{task.description}</Text>}
-            </View>
+            </TouchableOpacity>
           );
         })}
       </View>
@@ -61,7 +60,6 @@ const TaskTimeline = ({ tasks }: { tasks: Task[] }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingLeft: 0, // minder ruimte links
     backgroundColor: '#fff8e7',
   },
   hourRow: {
@@ -85,13 +83,13 @@ const styles = StyleSheet.create({
   },
   timeline: {
     position: 'absolute',
-    left: 70, // onder tijdlabel + marginRight
+    left: 70,
     width: 2,
     backgroundColor: '#3399ff',
   },
   tasksContainer: {
     position: 'relative',
-    marginLeft: 80, // genoeg ruimte na tijdlabels
+    marginLeft: 80,
     marginRight: 10,
   },
   taskBlock: {

@@ -3,16 +3,22 @@ import { View, TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'rea
 import { FontAwesome } from '@expo/vector-icons';
 import Calendar from '../components/Calendar';
 import TaskTimeline from '../components/TaskTimeLine';
-import { PlusButton, fetchTasksForDate } from '../utils/Tasks';
+import EditTaskModal from '../components/EditTaskModal';
+import TaskDetailsModal from '../components/TaskDetailsModal';
+import { PlusButton, fetchTasksForDate, editTask } from '../utils/Tasks';
+import { Task } from '../utils/Types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 
 const AgendaScreen = () => {
   const [expanded, setExpanded] = useState(true);
   const [userId, setUserId] = useState<number | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [showTaskDetails, setShowTaskDetails] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -29,6 +35,26 @@ const AgendaScreen = () => {
     loadUser();
   }, []);
 
+  const handleTaskPress = (task: Task) => {
+    setSelectedTask(task);
+    setShowTaskDetails(true);
+  };
+
+  const handleEditTask = (task: Task) => {
+    setShowTaskDetails(false);
+    setEditingTask(task);
+    setShowEditModal(true);
+  };
+
+  const handleSaveEditedTask = async (updatedTask: Task) => {
+    try {
+      const result = await editTask(updatedTask, userId);
+      setTasks(prev => prev.map(t => t.id === result.id ? result : t));
+    } catch (error) {
+      console.error('Fout bij opslaan van bewerkte taak:', error);
+    }
+    setShowEditModal(false);
+  };
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -40,7 +66,6 @@ const AgendaScreen = () => {
 
     fetchTasks();
   }, [selectedDate, userId]);
-
 
   return (
     <View style={styles.container}>
@@ -71,12 +96,25 @@ const AgendaScreen = () => {
       {loading ? (
         <ActivityIndicator size="large" color="#3399ff" style={{ marginTop: 20 }} />
       ) : (
-        <TaskTimeline tasks={tasks} />
+        <TaskTimeline tasks={tasks} onTaskPress={handleTaskPress} />
       )}
+
+      <TaskDetailsModal
+        visible={showTaskDetails}
+        onClose={() => setShowTaskDetails(false)}
+        task={selectedTask}
+        onEdit={handleEditTask}
+      />
+
+      <EditTaskModal
+        visible={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        task={editingTask}
+        onSave={handleSaveEditedTask}
+      />
     </View>
   );
 };
-
 
 export default AgendaScreen;
 
