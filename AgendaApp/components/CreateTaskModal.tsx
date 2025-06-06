@@ -17,14 +17,17 @@ interface Props {
   visible: boolean;
   onClose: () => void;
   userId: number;
+  onShowSnackbar: (message: string) => void;
 }
 
-export const CreateTaskModal: React.FC<Props> = ({ visible, onClose, userId }) => {
+export const CreateTaskModal: React.FC<Props> = ({ visible, onClose, userId, onShowSnackbar }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [pickerType, setPickerType] = useState<'start' | 'end' | null>(null);
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   
 
@@ -65,10 +68,8 @@ export const CreateTaskModal: React.FC<Props> = ({ visible, onClose, userId }) =
         
       });
 
-      console.log('hier userId in modal:', userId);
-
       if (response.ok) {
-        Alert.alert('Succes', 'Taak aangemaakt!');
+        onShowSnackbar('Taak aangemaakt!');
         setTitle('');
         setDescription('');
         setStartDate(null);
@@ -76,11 +77,11 @@ export const CreateTaskModal: React.FC<Props> = ({ visible, onClose, userId }) =
         onClose();
       } else {
         const message = await response.text();
-        Alert.alert('Fout', message || 'Fout bij het aanmaken.');
+        onShowSnackbar(message);
       }
     } catch (error) {
       console.error('Netwerkfout:', error);
-      Alert.alert('Netwerkfout');
+      onShowSnackbar('Netwerkfout');
     }
   };
 
@@ -142,6 +143,8 @@ export const CreateTaskModal: React.FC<Props> = ({ visible, onClose, userId }) =
             <Button title="Annuleren" onPress={onClose} color="#999" />
             <Button title="Aanmaken" onPress={handleCreateTask} />
           </View>
+
+          
         </View>
       </View>
     </Modal>

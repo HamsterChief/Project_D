@@ -8,6 +8,8 @@ import TaskDetailsModal from '../components/TaskDetailsModal';
 import { PlusButton, fetchTasksForDate, editTask } from '../utils/Tasks';
 import { Task } from '../utils/Types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Snackbar } from 'react-native-paper';
+import WeekDaysRow from '../components/WeekDaysRow';
 
 const AgendaScreen = () => {
   const [expanded, setExpanded] = useState(true);
@@ -19,6 +21,8 @@ const AgendaScreen = () => {
   const [showTaskDetails, setShowTaskDetails] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   useEffect(() => {
     const loadUser = async () => {
@@ -50,10 +54,18 @@ const AgendaScreen = () => {
     try {
       const result = await editTask(updatedTask, userId);
       setTasks(prev => prev.map(t => t.id === result.id ? result : t));
-    } catch (error) {
-      console.error('Fout bij opslaan van bewerkte taak:', error);
+
+      setSnackbarMessage('Taak opgeslagen!');
+      setSnackbarVisible(true);
+      setShowEditModal(false);
+    } catch (error : any) {
+      const errorMessage =
+        error?.response?.data?.message || // Als backend een duidelijke foutmelding geeft
+        error?.message ||                // Algemene JS error
+        'Onbekende fout bij opslaan taak.';
+      setSnackbarMessage(errorMessage);
+      setSnackbarVisible(true);
     }
-    setShowEditModal(false);
   };
 
   useEffect(() => {
@@ -84,13 +96,18 @@ const AgendaScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {expanded && (
+      {expanded ? (
         <Calendar selectedDate={selectedDate} onDateChange={setSelectedDate} />
+      ) : (
+        <WeekDaysRow selectedDate={selectedDate} onDateChange={setSelectedDate} />
       )}
 
       <View style={styles.newTaskRow}>
         <Text style={{ color: '#333', fontSize: 16 }}>Nieuwe taak</Text>
-        {userId ? <PlusButton userId={userId} /> : <Text style={{ color: 'gray' }}>Gebruiker laden...</Text>}
+        {userId ? <PlusButton userId={userId} onShowSnackbar={message => {
+        setSnackbarMessage(message);
+        setSnackbarVisible(true); }}
+        /> : <Text style={{ color: 'gray' }}>Gebruiker laden...</Text>}
       </View>
 
       {loading ? (
@@ -111,8 +128,25 @@ const AgendaScreen = () => {
         onClose={() => setShowEditModal(false)}
         task={editingTask}
         onSave={handleSaveEditedTask}
+        onShowSnackbar={(message) => {
+          setSnackbarMessage(message);
+          setSnackbarVisible(true);
+        }}
       />
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={4000} // hoe lang zichtbaar (3 seconden)
+        style={{marginBottom: 60}}
+        action={{
+          label: 'Sluiten',
+          onPress: () => setSnackbarVisible(false),
+        }}
+      >
+        {snackbarMessage}
+      </Snackbar>
     </View>
+    
   );
 };
 

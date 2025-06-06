@@ -13,7 +13,13 @@ import { Task } from '../utils/Types'
 
 
 
-export const PlusButton = ({ userId }: { userId: number }) => {
+export const PlusButton = ({
+  userId,
+  onShowSnackbar,
+}: {
+  userId: number;
+  onShowSnackbar: (message: string) => void;
+}) => {
   const [modalVisible, setModalVisible] = useState(false);
 
   return (
@@ -29,6 +35,7 @@ export const PlusButton = ({ userId }: { userId: number }) => {
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         userId={userId}
+        onShowSnackbar={onShowSnackbar} // ✅ HIER doorgeven
       />
     </View>
   );
@@ -60,7 +67,7 @@ export const fetchTasksForDate = async (date: Date, userId: number | null) => {
 export const editTask = async (task: Task, userId: number | null) => {
   const url = `http://localhost:5133/api/task/edit/${task.id}/user/${userId}`;
 
-  try {
+ 
     const response = await fetch(url, {
       method: 'PUT',
       headers: {
@@ -71,16 +78,14 @@ export const editTask = async (task: Task, userId: number | null) => {
 
     if (!response.ok) {
       const message = await response.text();
-      throw new Error(`Fout bij bewerken van taak: ${message}`);
+      throw new Error(message);
     }
 
-    const updatedTask = await response.json();
-    return updatedTask;
-  } catch (error) {
-    console.error('Fout in editTask():', error);
-    throw error;
-  }
-};
+    const data = await response.json();
+    return data;
+  
+}
+
 
 
 

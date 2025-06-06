@@ -16,9 +16,10 @@ interface EditTaskModalProps {
   onClose: () => void;
   task: Task | null;
   onSave: (updatedTask: Task) => void;
+  onShowSnackbar: (message: string) => void;
 }
 
-const EditTaskModal: React.FC<EditTaskModalProps> = ({ visible, onClose, task, onSave }) => {
+const EditTaskModal: React.FC<EditTaskModalProps> = ({ visible, onClose, task, onSave, onShowSnackbar}) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [startDate, setStartDate] = useState<Date | null>(null);
@@ -51,8 +52,11 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ visible, onClose, task, o
     setPickerType(null);
   };
 
-  const handleSave = () => {
-    if (!task || !startDate || !endDate) return;
+  const handleSave = async () => {
+    if (!task || !startDate || !endDate) {
+      onShowSnackbar('Vul alle verplichte velden in.');
+      return;
+    }
 
     const updatedTask: Task = {
       ...task,
@@ -62,8 +66,8 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ visible, onClose, task, o
       endDate: endDate.toISOString(),
     };
 
-    onSave(updatedTask);
-    onClose();
+    
+    await onSave(updatedTask);
   };
 
   if (!task) return null;
@@ -130,6 +134,8 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ visible, onClose, task, o
           <TouchableOpacity onPress={onClose} style={styles.cancelButton}>
             <Text style={styles.buttonText}>Annuleer</Text>
           </TouchableOpacity>
+
+          
         </View>
       </View>
     </Modal>
