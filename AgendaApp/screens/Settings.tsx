@@ -3,8 +3,9 @@ import { View, Text, Switch, FlatList, Button, StyleSheet, TextInput, TouchableO
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFormState } from 'react-dom';
+import { verify } from 'password-hash';
 
-type FormType = 'main' | 'password' | 'feedback' | 'bug' | 'notifications';
+type FormType = 'main' | 'password' | 'feedback' | 'bug' | 'notifications' | 'verifyEmail';
 // type FormItem = {
 //   text: string
 //   submissionDate: Date
@@ -26,11 +27,13 @@ const SettingsScreen = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [feedback, setFeedback] = useState('');
     const [bugReport, setBugReport] = useState('');
+    const [verifyEmailCode, setVerifyEmailCode] = useState('');
 
     const [isPressed, setIsPressed] = useState(false);
 
     const [emailEnabled, setEmailEnabled] = useState(false);
     const [phoneEnabled, setPhoneEnabled] = useState(false);
+    const [pushEnabled, setPushEnabled] = useState(false);
     const [likesEnabled, setLikesEnabled] = useState(false);
     const [commentsEnabled, setCommentsEnabled] = useState(false);
     const [followersEnabled, setFollowersEnabled] = useState(false);
@@ -134,6 +137,34 @@ const SettingsScreen = () => {
   };
 
 
+  const handleVerifyEmail = async () => 
+  {
+    try {
+        // const payload = {User: {Id: userId, Email: email, Password: password}, VerificationCodeStr: verifyEmailCode }
+        const response = await fetch('http://localhost:5133/api/auth/verify_email', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify( {
+          UserId: 18, VerificationCodeStr: "240387",
+        } ),
+      });
+      if (response.ok)
+      {
+        alert('Email geverifieerd!');
+      }
+      else {
+        const error = await response.text();
+        handleError('Ongeldige verificatie code', error)
+      }
+    } catch (err) {
+      handleError('Oops! Er is iets fout bij het verifiëren van uw email:', err);
+    }
+    setCurrentForm('main');
+  };
+
+
   const renderMainMenu = () => (
     <>
       <Button title="App instellingen" onPress={() => navigation.navigate('AppSettings')} />
@@ -142,6 +173,7 @@ const SettingsScreen = () => {
       <Button title="Wachtwoord veranderen" onPress={() => setCurrentForm('password')} />
       <Button title="App feedback" onPress={() => setCurrentForm('feedback')} />
       <Button title="Bug rapporteren" onPress={() => setCurrentForm('bug')} />
+      <Button title="Email verifiëren" onPress={() => setCurrentForm('verifyEmail')} />
       <Button title="Terug" onPress={() => navigation.navigate('Main')} />
 
       {/* <Button title="Accountinstellingen" onPress={() => navigation.navigate('subsettings/AccountSettings')} /> */}
@@ -168,6 +200,7 @@ const SettingsScreen = () => {
 
 
       <Text style={styles.title}>Pushberichten</Text>
+      <Switch value={pushEnabled} onValueChange={setPushEnabled} />
         <Text style={styles.title}>Activiteiten</Text>
 
           <View style={styles.row}>
@@ -263,6 +296,25 @@ const SettingsScreen = () => {
     </>
   );
 
+  const renderVerifyEmailForm = () => (
+    <>
+      <Text style={styles.title}>Verifieer je email hier</Text>
+      <TextInput
+        placeholder="Verificatie code"
+        placeholderTextColor="#909090"
+        value={verifyEmailCode}
+        onChangeText={setVerifyEmailCode}
+        style={styles.input}
+      />
+      <TouchableOpacity style={styles.button} onPress={handleVerifyEmail}>
+        <Text style={styles.buttonText}>Bevestig</Text>
+      </TouchableOpacity>
+      <Text style={styles.cancel} onPress={() => setCurrentForm('main')}>
+        Terug
+      </Text>
+    </>
+  )
+
   return (
     <ImageBackground
       source={require('../assets/login.png')}
@@ -275,6 +327,7 @@ const SettingsScreen = () => {
         {currentForm === 'password' && renderPasswordForm()}
         {currentForm === 'feedback' && renderFeedbackForm()}
         {currentForm === 'bug' && renderBugForm()}
+        {currentForm === 'verifyEmail' && renderVerifyEmailForm()}
       </View>
     </ImageBackground>
   );

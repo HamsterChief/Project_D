@@ -1,11 +1,20 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 public class User
 {
     // public Guid Id { get; set; }
     public int Id { get; set; }
     public string Email { get; set; }
     public string Password { get; set; }
+
+    // [ForeignKey("NotificationSettingsModel")]
+    // public int NotificationSettingsKey { get; set; }
+    // private NotificationSettingsModel NotificationSettings { get; set; } = null;
+    
+    // public string Phone { get;  set;}
     // public string Username {get; set;}
-    // public bool IsVerified {get; set;}
+
+    public bool IsVerified { get; set; } = false;
 
     // public byte[] ProfilePicture { get; set; } // image format files aren't safe
     // public int ProfilePictureKey {get; set;} // for avatars
@@ -20,4 +29,3 @@ public class User
     // public string TagsRoles
     // public string Certificates
 }
-

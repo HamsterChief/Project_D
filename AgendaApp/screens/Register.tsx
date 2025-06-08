@@ -44,7 +44,7 @@ const RegisterScreen: React.FC = () => {
 
       if (response.ok) {
         Alert.alert('Succes', 'Registratie gelukt!');
-        alert("aaa")
+        alert("Registratie gelukt! Check je mailbox voor een bevestigingsbericht")
         navigation.navigate('Login');
       } else {
         const error = await response.text();

@@ -9,9 +9,13 @@ public class UserSettingsService
         _context = context;
     }
 
-    public async Task<UserSettings?> GetSettings(string userId)
+    public async Task<UserSettings?> GetSettings(string userIdStr)
     {
-        return await _context.UserSettings.FirstOrDefaultAsync(u => u.UserId == userId);
+        if (int.TryParse(userIdStr, out int userId))
+        {
+            return await _context.UserSettings.FirstOrDefaultAsync(u => u.UserId == userId);
+        }
+        return null;
     }
 
     public async Task<UserSettings> SaveSettings(UserSettings settings)

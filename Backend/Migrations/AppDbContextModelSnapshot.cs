@@ -74,9 +74,32 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.ToTable("formItems");
+                });
+
+            modelBuilder.Entity("NotificationSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("EmailAllowed")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("PhoneAllowed")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("PushAllowed")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
                     b.HasIndex("UserId");
 
-                    b.ToTable("formItems");
+                    b.ToTable("NotificationSettings");
                 });
 
             modelBuilder.Entity("TaskItem", b =>
@@ -107,8 +130,6 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("taskItems");
                 });
 
@@ -122,6 +143,9 @@ namespace Backend.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -131,18 +155,6 @@ namespace Backend.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("AppointmentItem", b =>
-                {
-                    b.HasOne("User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("FormItem", b =>
             modelBuilder.Entity("UserSettings", b =>
                 {
                     b.Property<int>("Id")
@@ -165,14 +177,35 @@ namespace Backend.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("UserId")
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserSettings");
+                });
+
+            modelBuilder.Entity("VerificationCode", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("VerificationCodeStr")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserSettings");
-                }));
+                    b.HasIndex("UserId");
+
+                    b.ToTable("VerificationCodes");
+                });
 
             modelBuilder.Entity("AppointmentItem", b =>
                 {
@@ -185,7 +218,29 @@ namespace Backend.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TaskItem", b =>
+            modelBuilder.Entity("NotificationSettings", b =>
+                {
+                    b.HasOne("User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("UserSettings", b =>
+                {
+                    b.HasOne("User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("VerificationCode", b =>
                 {
                     b.HasOne("User", "User")
                         .WithMany()

@@ -25,6 +25,10 @@ public class Program
                 policy.AllowAnyOrigin()
                       .AllowAnyHeader()
                       .AllowAnyMethod();
+                
+                // policy.WithOrigins("http://localhost:8081")
+                //         .AllowAnyHeader()
+                //         .AllowAnyMethod();
             });
         });
 
@@ -33,7 +37,9 @@ public class Program
         var app = builder.Build();
 
         app.UseCors("AllowFrontend");
+        app.UseCors("AllowReactNativeWebApp");
         app.UseHttpsRedirection();
+        app.UseAuthorization();
         app.MapControllers();
 
         app.Run();

@@ -13,4 +13,6 @@ public class AppDbContext : DbContext
     public DbSet<AppointmentItem> appointmentItems => Set<AppointmentItem>();
 
     public DbSet<UserSettings> UserSettings => Set<UserSettings>();
+    public DbSet<NotificationSettings> NotificationSettings => Set<NotificationSettings>();
+    public DbSet<VerificationCode> VerificationCodes => Set<VerificationCode>();
 }

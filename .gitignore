@@ -134,3 +134,8 @@ $RECYCLE.BIN/
 .DS_Store
 
 _NCrunch*
+
+# How to gitignore c# migrations and package-lock.json
+Migrations/
+package-lock.json
+package.json

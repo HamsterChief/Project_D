@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { homeStyles } from '../styles/homeStyles';
 import {CreateTaskModal} from '../components/CreateTaskModal';
@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
+  const [user, setUser] = useState<any>(null);
 
   const route = useRoute();
   const today = new Date();
@@ -30,6 +31,24 @@ const HomeScreen = () => {
     navigation.navigate('Login');
   };
 
+  useEffect(() => {
+    let isMounted = true;
+    
+    const loadUser = async () => {
+      try {
+        const storedUser = await AsyncStorage.getItem('user');
+        if (storedUser && isMounted) {
+          const parsedUser = JSON.parse(storedUser);
+          setUser(parsedUser.user);
+        }
+      } catch (error) {
+        console.error('Gebruiker laden fout:', error);
+      }
+    };
+    loadUser();
+  }, []);
+
+  if (user != null)
   return (
     <View style={homeStyles.container}>
       <Text style={homeStyles.greeting}>{greeting}</Text>
