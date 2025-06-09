@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, TouchableOpacity, Text, StyleSheet, ActivityIndicator, PanResponder, GestureResponderEvent, PanResponderGestureState } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import Calendar from '../components/Calendar';
 import TaskTimeline from '../components/TaskTimeLine';
 import EditTaskModal from '../components/EditTaskModal';
 import TaskDetailsModal from '../components/TaskDetailsModal';
-import { PlusButton, fetchTasksForDate, editTask } from '../utils/Tasks';
+import { PlusButton, fetchTasksForDate, editTask, finishTask, removeTask } from '../utils/Tasks';
 import { Task } from '../utils/Types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Snackbar } from 'react-native-paper';
 import WeekDaysRow from '../components/WeekDaysRow';
+
+
 
 const AgendaScreen = () => {
   const [expanded, setExpanded] = useState(true);
@@ -39,6 +41,14 @@ const AgendaScreen = () => {
     loadUser();
   }, []);
 
+  const reloadTasks = async () => {
+  if (!userId) return;
+  setLoading(true);
+  const data = await fetchTasksForDate(selectedDate, userId);
+  setTasks(data);
+  setLoading(false);
+};
+
   const handleTaskPress = (task: Task) => {
     setSelectedTask(task);
     setShowTaskDetails(true);
@@ -49,6 +59,23 @@ const AgendaScreen = () => {
     setEditingTask(task);
     setShowEditModal(true);
   };
+
+  const panResponder = useRef(
+  PanResponder.create({
+    onMoveShouldSetPanResponder: (_, gestureState) => {
+      return Math.abs(gestureState.dx) > 20; // alleen reageren op horizontale swipe
+    },
+    onPanResponderRelease: (_, gestureState) => {
+      if (gestureState.dx > 50) {
+        // swipe naar rechts → vorige dag
+        setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth(), prev.getDate() - 1));
+      } else if (gestureState.dx < -50) {
+        // swipe naar links → volgende dag
+        setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth(), prev.getDate() + 1));
+      }
+    },
+  })
+).current;
 
   const handleSaveEditedTask = async (updatedTask: Task) => {
     try {
@@ -68,6 +95,32 @@ const AgendaScreen = () => {
     }
   };
 
+  const handleFinishTask = async (task: Task) => {
+    try {
+      const updated = await finishTask(task, userId);
+      setTasks(prev => prev.map(t => t.id === updated.id ? updated : t));
+      setSnackbarMessage("Taak gemarkeerd als voltooid!");
+      setSnackbarVisible(true);
+      setShowTaskDetails(false);
+    } catch (error: any) {
+      setSnackbarMessage(error?.response?.data || "Fout bij voltooien taak.");
+      setSnackbarVisible(true);
+    }
+  };
+
+  const handleRemoveTask = async (task: Task) => {
+  try {
+    await removeTask(task, userId);
+    setTasks(prev => prev.filter(t => t.id !== task.id));
+    setSnackbarMessage("Taak succesvol verwijderd!");
+    setSnackbarVisible(true);
+    setShowTaskDetails(false);
+  } catch (error: any) {
+    setSnackbarMessage(error.message || "Fout bij verwijderen taak.");
+    setSnackbarVisible(true);
+  }
+};
+
   useEffect(() => {
     const fetchTasks = async () => {
       setLoading(true);
@@ -80,7 +133,7 @@ const AgendaScreen = () => {
   }, [selectedDate, userId]);
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} {...panResponder.panHandlers}>
       <View style={styles.toggleRow}>
         <Text style={styles.title}>Agenda</Text>
         <TouchableOpacity
@@ -105,8 +158,11 @@ const AgendaScreen = () => {
       <View style={styles.newTaskRow}>
         <Text style={{ color: '#333', fontSize: 16 }}>Nieuwe taak</Text>
         {userId ? <PlusButton userId={userId} onShowSnackbar={message => {
-        setSnackbarMessage(message);
-        setSnackbarVisible(true); }}
+        setSnackbarMessage(message);  
+        setSnackbarVisible(true);
+        reloadTasks()
+      }}
+
         /> : <Text style={{ color: 'gray' }}>Gebruiker laden...</Text>}
       </View>
 
@@ -121,6 +177,8 @@ const AgendaScreen = () => {
         onClose={() => setShowTaskDetails(false)}
         task={selectedTask}
         onEdit={handleEditTask}
+        onFinish={handleFinishTask}
+        onRemove={handleRemoveTask}
       />
 
       <EditTaskModal

@@ -125,25 +125,34 @@ public class TaskService : ITaskService {
     }
 
 
-    public async Task<ServiceResult<TaskItem>> RemoveTask(int taskId){
-        var foundTask = await _context.taskItems.FirstOrDefaultAsync(t => t.Id == taskId);
-
-        if (foundTask != null){
-            _context.taskItems.Remove(foundTask);
-            await _context.SaveChangesAsync();
-            return ServiceResult<TaskItem>.SuccessResult(foundTask);
-        }
-
-        return ServiceResult<TaskItem>.Failure("Taak bestaat niet.");
-    }
-
-    public async Task<ServiceResult<TaskItem>> FinishTask(int taskId)
+    public async Task<ServiceResult<TaskItem>> RemoveTask(int taskId, int userId)
     {
         var foundTask = await _context.taskItems.FirstOrDefaultAsync(t => t.Id == taskId);
 
         if (foundTask == null)
         {
-            return ServiceResult<TaskItem>.Failure("Taak niet gevonden.");
+            return ServiceResult<TaskItem>.Failure("Taak bestaat niet.");
+        }
+
+        if (foundTask.UserId != userId)
+        {
+            return ServiceResult<TaskItem>.Failure("Geen toestemming om deze taak te verwijderen.");
+        }
+
+        _context.taskItems.Remove(foundTask);
+        await _context.SaveChangesAsync();
+
+        return ServiceResult<TaskItem>.SuccessResult(foundTask);
+    }
+
+    public async Task<ServiceResult<TaskItem>> FinishTask(int taskId, int userId)
+    {
+        Console.WriteLine($"FinishTask: taskId={taskId}, userId={userId}");
+        var foundTask = await _context.taskItems.FirstOrDefaultAsync(t => t.Id == taskId && t.UserId == userId);
+
+        if (foundTask == null)
+        {
+            return ServiceResult<TaskItem>.Failure("Taak niet gevonden of geen toegang.");
         }
 
         if (foundTask.Finished)
@@ -165,7 +174,7 @@ public interface ITaskService {
 
     public Task<ServiceResult<TaskItem>> EditTask(int id, int userId,  TaskItem task);
 
-    public Task<ServiceResult<TaskItem>> RemoveTask(int taskId);
+    public Task<ServiceResult<TaskItem>> RemoveTask(int taskId, int userId);
 
-    public Task<ServiceResult<TaskItem>> FinishTask(int taskId);
+    public Task<ServiceResult<TaskItem>> FinishTask(int taskId, int userId);
 }

@@ -6,4 +6,5 @@ export interface Task {
   description?: string;
   startDate: string; 
   endDate: string;   
+  finished: boolean
 }

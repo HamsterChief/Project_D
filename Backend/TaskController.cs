@@ -52,10 +52,10 @@ public class TaskController : ControllerBase {
         return BadRequest(result.ErrorMessage);
     }
 
-    [HttpDelete("remove/{id}")]
-    public async Task<IActionResult> RemoveTask([FromRoute] int id)
+    [HttpDelete("remove/{taskId}/user/{userId}")]
+    public async Task<IActionResult> RemoveTask([FromRoute] int taskId, [FromRoute] int userId)
     {
-        var result = await _service.RemoveTask(id);
+        var result = await _service.RemoveTask(taskId, userId);
 
         if (result.StatusCode == 200)
         {
@@ -65,11 +65,15 @@ public class TaskController : ControllerBase {
         return BadRequest(result.ErrorMessage);
     }
 
-    [HttpPut("finish/{id}")]
-    public async Task<IActionResult> FinishTask(int id){
-        var result = await _service.FinishTask(id);
+    [HttpPut("finish/{id}/user/{userId}")]
+    public async Task<IActionResult> FinishTask([FromRoute] int id, [FromRoute] int userId)
+    {
+        Console.WriteLine($"FinishTask aangeroepen met taskId={id}, userId={userId}");
+        
+        var result = await _service.FinishTask(id, userId);
 
-        if (result.StatusCode == 200){
+        if (result.StatusCode == 200)
+        {
             return Ok(result.Data);
         }
 

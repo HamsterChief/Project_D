@@ -8,10 +8,23 @@ interface TaskDetailsModalProps {
   onClose: () => void;
   task: Task | null;
   onEdit: (task: Task) => void;
+  onFinish?: (task: Task) => void;
+  onRemove: (task: Task) => void;
 }
 
+const formatDateTime = (isoString: string) => {
+  const date = new Date(isoString);
+  return date.toLocaleString('nl-NL', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
 
-const TaskDetailsModal : React.FC<TaskDetailsModalProps> = ({ visible, onClose, task, onEdit }) => {
+
+const TaskDetailsModal : React.FC<TaskDetailsModalProps> = ({ visible, onClose, task, onEdit, onFinish, onRemove }) => {
   if (!task) return null;
 
   return (
@@ -20,8 +33,8 @@ const TaskDetailsModal : React.FC<TaskDetailsModalProps> = ({ visible, onClose, 
         <View style={styles.modal}>
           <Text style={styles.title}>{task.title}</Text>
           <Text style={styles.detail}>Beschrijving: {task.description}</Text>
-          <Text style={styles.detail}>Start: {task.startDate}</Text>
-          <Text style={styles.detail}>Einde: {task.endDate}</Text>
+          <Text style={styles.detail}>Start: {formatDateTime(task.startDate)}</Text>
+          <Text style={styles.detail}>Einde: {formatDateTime(task.endDate)}</Text>
 
           <TouchableOpacity onPress={onClose} style={styles.button}>
             <Text style={styles.buttonText}>Sluiten</Text>
@@ -29,6 +42,23 @@ const TaskDetailsModal : React.FC<TaskDetailsModalProps> = ({ visible, onClose, 
           <TouchableOpacity onPress={() => onEdit(task)} style={[styles.button, { backgroundColor: '#ffa500' }]}>
             <Text style={styles.buttonText}>Bewerk</Text>
           </TouchableOpacity>
+          <TouchableOpacity onPress={() => onRemove(task)} style={[styles.button, { backgroundColor: '#ff4d4d' }]}>
+            <Text style={styles.buttonText}>Remove</Text>
+          </TouchableOpacity>
+          {task && !task.finished && (
+            <TouchableOpacity
+              style={styles.radioContainer}
+              onPress={() => onFinish?.(task)}
+            >
+              <View style={styles.radioButtonOuter}>
+                {task.finished && <View style={styles.radioButtonInner} />}
+              </View>
+              <Text style={styles.radioLabel}>
+                Markeer als voltooid
+              </Text>
+            </TouchableOpacity>
+          )}
+          
         </View>
       </View>
     </Modal>
@@ -71,4 +101,43 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
   },
+  saveButton: {
+    backgroundColor: '#4CAF50', // een frisse groene kleur voor "voltooien"
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginBottom: 8,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3, // voor Android
+  },
+  radioContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginTop: 16,
+},
+radioButtonOuter: {
+  height: 24,
+  width: 24,
+  borderRadius: 12,
+  borderWidth: 2,
+  borderColor: '#4CAF50',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginRight: 10,
+},
+
+radioButtonInner: {
+  height: 12,
+  width: 12,
+  borderRadius: 6,
+  backgroundColor: '#4CAF50',
+},
+radioLabel: {
+  fontSize: 16,
+  color: '#333',
+},
 });

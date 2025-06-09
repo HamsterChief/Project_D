@@ -35,7 +35,7 @@ export const PlusButton = ({
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         userId={userId}
-        onShowSnackbar={onShowSnackbar} // ✅ HIER doorgeven
+        onShowSnackbar={onShowSnackbar} 
       />
     </View>
   );
@@ -83,9 +83,47 @@ export const editTask = async (task: Task, userId: number | null) => {
 
     const data = await response.json();
     return data;
-  
 }
 
+
+export const finishTask = async (task: Task, userId: number | null) => {
+  const url = `http://localhost:5133/api/task/finish/${task.id}/user/${userId}`;
+  console.log("Fetch URL:", url);
+  const response = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Fout response:', response.status, errorText);
+    throw new Error(`HTTP ${response.status}: ${errorText}`);
+  }
+
+  const data: Task = await response.json();
+  return data;
+};
+
+
+export const removeTask = async (task: Task, userId: number | null) => {
+  const response = await fetch(`http://localhost:5133/api/task/remove/${task.id}/user/${userId}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Fout bij verwijderen taak:', errorText);
+    throw new Error(errorText || 'Fout bij verwijderen taak');
+  }
+
+  const data: Task = await response.json();
+  return data;
+};
 
 
 
