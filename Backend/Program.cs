@@ -16,6 +16,7 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<UserSettingsService>();
 
 
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -26,6 +27,8 @@ builder.Services.AddCors(options =>
     });
 });
 builder.WebHost.UseUrls("http://0.0.0.0:5133");
+
+builder.Services.AddHttpClient<OpenAiService>();
 
 var app = builder.Build();
 

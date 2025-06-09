@@ -123,6 +123,9 @@ const AgendaScreen = () => {
         <Text style={styles.textualButton} onPress={() => navigation.navigate('Settings')}>
             Instellingen
         </Text>
+        <Text style={styles.textualButton} onPress={() => navigation.navigate('AICoach' as never)}>
+            AI Coach
+        </Text>
       </View>
     {/* // <View style={styles.container}>
     //   <View style={styles.headerRow}>
