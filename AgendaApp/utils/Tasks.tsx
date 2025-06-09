@@ -5,12 +5,11 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useRoute } from '@react-navigation/native';
 //import { loginStyles as styles} from '../styles/loginstyles';
 import { Audio } from 'expo-av';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, ActivityIndicator} from 'react-native';
 import { CreateTaskModal } from '../components/CreateTaskModal';
 import { Appointment } from '../utils/dbcon';
 import { getLocalDateString } from '../components/Calendar';
 import { Task } from '../utils/Types'
-
 
 
 export const PlusButton = ({
@@ -26,7 +25,10 @@ export const PlusButton = ({
     <View>
       <Pressable
         onPress={() => setModalVisible(true)}
-        style={({ pressed }) => [pressed ? styles.pressed : styles.notPressed]}
+        style={({ pressed }) => [
+          plusStyles.circleButton,
+          pressed && styles.pressed,
+        ]}
       >
         <Image style={styles.icon} source={require('../assets/IconPlus.png')} />
       </Pressable>
@@ -41,13 +43,35 @@ export const PlusButton = ({
   );
 };
 
+const plusStyles = StyleSheet.create({
+  circleButton: {
+    backgroundColor: '#007AFF', // heldere blauwe kleur
+    borderRadius: 25, // maakt cirkel (helft van width/height)
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  pressed: {
+    opacity: 0.7, // iets transparanter bij indrukken
+  },
+  icon: {
+    width: 24,
+    height: 24,
+    tintColor: 'white', // zorgt dat de plus wit wordt
+  },
+});
+
+
+
+
 
 
 export const fetchTasksForDate = async (date: Date, userId: number | null) => {
   if (!userId) return [];
 
   const dateStr = getLocalDateString(date);
-  const url = `http://localhost:5133/api/task/date/${dateStr}/user/${userId}`;
+  const url = `http://192.168.68.109:5133/api/task/date/${dateStr}/user/${userId}`;
 
   try {
     const response = await fetch(url);
@@ -65,7 +89,7 @@ export const fetchTasksForDate = async (date: Date, userId: number | null) => {
 
 
 export const editTask = async (task: Task, userId: number | null) => {
-  const url = `http://localhost:5133/api/task/edit/${task.id}/user/${userId}`;
+  const url = `http://192.168.68.109:5133/api/task/edit/${task.id}/user/${userId}`;
 
  
     const response = await fetch(url, {
@@ -87,7 +111,7 @@ export const editTask = async (task: Task, userId: number | null) => {
 
 
 export const finishTask = async (task: Task, userId: number | null) => {
-  const url = `http://localhost:5133/api/task/finish/${task.id}/user/${userId}`;
+  const url = `http://192.168.68.109:5133/api/task/finish/${task.id}/user/${userId}`;
   console.log("Fetch URL:", url);
   const response = await fetch(url, {
     method: 'PUT',
@@ -108,7 +132,7 @@ export const finishTask = async (task: Task, userId: number | null) => {
 
 
 export const removeTask = async (task: Task, userId: number | null) => {
-  const response = await fetch(`http://localhost:5133/api/task/remove/${task.id}/user/${userId}`, {
+  const response = await fetch(`http://192.168.68.109:5133/api/task/remove/${task.id}/user/${userId}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
@@ -124,6 +148,8 @@ export const removeTask = async (task: Task, userId: number | null) => {
   const data: Task = await response.json();
   return data;
 };
+
+
 
 
 

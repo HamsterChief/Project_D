@@ -11,6 +11,7 @@ import HomeScreen from './screens/Home';
 import AgendaScreen from './screens/Agenda';
 import ProfileScreen from './screens/Profile';
 import CoachScreen from './screens/Coach';
+import settingsScreen from './screens/Settings';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -88,6 +89,7 @@ const App = () => {
         <Stack.Screen name="Welcome" component={WelcomeScreen}/>
         <Stack.Screen name="Login" component={LoginScreen} options={{headerShown: true, title: 'Inloggen'}}/>
         <Stack.Screen name="Register" component={RegisterScreen} options={{headerShown: true, title: 'Registreren'}}/>
+        <Stack.Screen name="Settings" component={settingsScreen} />
         <Stack.Screen name="Main" component={TabNavigator} />
       </Stack.Navigator>
     </NavigationContainer>
