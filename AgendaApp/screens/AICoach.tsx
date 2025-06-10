@@ -11,6 +11,8 @@ import {
   Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 // Definieer het type voor een chatbericht
 interface ChatMessage {
@@ -24,13 +26,31 @@ const CoachScreen = () => {
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
-  const userId = 1; // Vervang dit door de echte userId van de ingelogde gebruiker
-
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   // Haal chatgeschiedenis op bij laden van het scherm
+
   useEffect(() => {
+    // Haal het e-mailadres van de ingelogde gebruiker op uit AsyncStorage
+    const fetchUserEmail = async () => {
+      const userDataString = await AsyncStorage.getItem('user');
+      if (userDataString) {
+        try {
+          const userData = JSON.parse(userDataString);
+          setUserEmail(userData.user.email); // user.email uit het response object
+        } catch (e) {
+          setUserEmail(null);
+        }
+      }
+    };
+    fetchUserEmail();
+  }, []);
+
+
+  useEffect(() => {
+    if (!userEmail) return;
     const fetchHistory = async () => {
       try {
-        const response = await fetch(`http://localhost:5133/api/ai/history?userId=${userId}`);
+        const response = await fetch(`http://localhost:5133/api/ai/history?email=${encodeURIComponent(userEmail)}`);
         if (response.ok) {
           const data = await response.json();
           setChatHistory(data); // verwacht array van {role, content, timestamp}
@@ -40,7 +60,7 @@ const CoachScreen = () => {
       }
     };
     fetchHistory();
-  }, []);
+  }, [userEmail]);
 
   const handleAskCoach = async () => {
     if (!prompt.trim()) {
@@ -56,7 +76,7 @@ const CoachScreen = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ prompt, userId }),
+        body: JSON.stringify({ prompt, email: userEmail }),
       });
 
       if (response.ok) {
