@@ -13,4 +13,5 @@ public class AppDbContext : DbContext
     public DbSet<AppointmentItem> appointmentItems => Set<AppointmentItem>();
 
     public DbSet<UserSettings> UserSettings => Set<UserSettings>();
+    public DbSet<ChatMessage> ChatMessages { get; set; }
 }

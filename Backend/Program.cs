@@ -29,6 +29,7 @@ builder.Services.AddCors(options =>
 builder.WebHost.UseUrls("http://0.0.0.0:5133");
 
 builder.Services.AddHttpClient<OpenAiService>();
+builder.Services.AddScoped<ChatService>();
 
 var app = builder.Build();
 

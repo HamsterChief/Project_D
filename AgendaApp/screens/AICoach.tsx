@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,12 +12,35 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
+// Definieer het type voor een chatbericht
+interface ChatMessage {
+  role: string;
+  content: string;
+  timestamp: string;
+}
+
 const CoachScreen = () => {
   const navigation = useNavigation();
   const [prompt, setPrompt] = useState('');
-  const [advice, setAdvice] = useState('');
   const [loading, setLoading] = useState(false);
-  const userId = 1; // tijdelijk hardcoded voor test
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  const userId = 1; // Vervang dit door de echte userId van de ingelogde gebruiker
+
+  // Haal chatgeschiedenis op bij laden van het scherm
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const response = await fetch(`http://localhost:5133/api/ai/history?userId=${userId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setChatHistory(data); // verwacht array van {role, content, timestamp}
+        }
+      } catch (error) {
+        console.error('Kan chatgeschiedenis niet ophalen:', error);
+      }
+    };
+    fetchHistory();
+  }, []);
 
   const handleAskCoach = async () => {
     if (!prompt.trim()) {
@@ -26,7 +49,6 @@ const CoachScreen = () => {
     }
 
     setLoading(true);
-    setAdvice('');
 
     try {
       const response = await fetch('http://localhost:5133/api/ai/coach', {
@@ -39,7 +61,13 @@ const CoachScreen = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setAdvice(data.advice);
+        // Voeg nieuwe berichten toe aan de geschiedenis
+        setChatHistory(prev => [
+          ...prev,
+          { role: 'user', content: prompt, timestamp: new Date().toISOString() },
+          { role: 'assistant', content: data.advice, timestamp: new Date().toISOString() }
+        ]);
+        setPrompt('');
       } else {
         const errorText = await response.text();
         console.error('Error from backend:', errorText);
@@ -62,13 +90,26 @@ const CoachScreen = () => {
         <Text style={styles.header}>Jouw Coach</Text>
         <Text style={styles.statusText}>Online</Text>
 
-        <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.mainButton}>
-            <Text style={styles.buttonText}>Bekijk planning</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.mainButton}>
-            <Text style={styles.buttonText}>Voeg taak toe</Text>
-          </TouchableOpacity>
+        {/* Chatgeschiedenis */}
+        <View style={{ marginVertical: 16 }}>
+          {chatHistory.map((msg, idx) => (
+            <View
+              key={idx}
+              style={{
+                alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                backgroundColor: msg.role === 'user' ? '#DCF8C6' : '#fff',
+                borderRadius: 10,
+                marginBottom: 8,
+                padding: 10,
+                maxWidth: '80%',
+              }}
+            >
+              <Text style={{ fontWeight: 'bold', marginBottom: 2 }}>
+                {msg.role === 'user' ? 'Jij' : 'Coach'}
+              </Text>
+              <Text>{msg.content}</Text>
+            </View>
+          ))}
         </View>
 
         <View style={styles.inputContainer}>
@@ -81,27 +122,19 @@ const CoachScreen = () => {
           />
         </View>
 
-        <TouchableOpacity style={styles.askButton} onPress={handleAskCoach}>
+        <TouchableOpacity style={styles.askButton} onPress={handleAskCoach} disabled={loading}>
           <Text style={styles.askButtonText}>Vraag Coach</Text>
         </TouchableOpacity>
 
         {loading && (
           <ActivityIndicator size="large" color="#007AFF" style={{ marginTop: 20 }} />
         )}
-
-        {advice ? (
-          <View style={styles.responseContainer}>
-            <Text style={styles.responseLabel}>Coach zegt:</Text>
-            <Text style={styles.responseText}>{advice}</Text>
-          </View>
-        ) : null}
       </ScrollView>
     </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
-  // ...bestaande styles...
   container: {
     backgroundColor: '#E5F4FF',
     flexGrow: 1,
@@ -119,24 +152,6 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     marginBottom: 16,
     fontWeight: '600',
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 14,
-  },
-  mainButton: {
-    backgroundColor: '#007AFF',
-    borderRadius: 20,
-    paddingVertical: 12,
-    paddingHorizontal: 18,
-    minWidth: 140,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 15,
   },
   inputContainer: {
     marginTop: 20,
@@ -162,23 +177,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
-  },
-  responseContainer: {
-    marginTop: 30,
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 12,
-    borderColor: '#ddd',
-    borderWidth: 1,
-  },
-  responseLabel: {
-    fontWeight: 'bold',
-    marginBottom: 6,
-    fontSize: 16,
-  },
-  responseText: {
-    fontSize: 16,
-    color: '#333',
   },
 });
 
