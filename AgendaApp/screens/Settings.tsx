@@ -43,8 +43,8 @@ const SettingsScreen = () => {
         const userObj = JSON.parse(storedUser);
         // THE REASON IT WORKS AS `userObj.user` AND NOT `userObj` IS BECAUSE `user`
         //  IS WRAPPED INSIDE `userObj`
-        setUser(userObj.user);
-        setUserId(userObj.user.id);
+        setUser(userObj);
+        setUserId(userObj.id);
       }
     };
     fetchUser();

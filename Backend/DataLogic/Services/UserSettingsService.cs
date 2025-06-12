@@ -9,20 +9,20 @@ public class UserSettingsService
         _context = context;
     }
 
-    public async Task<UserSettings?> GetSettings(string userId)
+    public async Task<UserSettings?> GetSettings(int Id)
     {
-        return await _context.UserSettings.FirstOrDefaultAsync(u => u.UserId == userId);
+        return await _context.UserSettings.FirstOrDefaultAsync(u => u.id == Id);
     }
 
     public async Task<UserSettings> SaveSettings(UserSettings settings)
     {
-        var existing = await _context.UserSettings.FirstOrDefaultAsync(u => u.UserId == settings.UserId);
+        var existing = await _context.UserSettings.FirstOrDefaultAsync(u => u.id == settings.id);
         if (existing != null)
         {
-            existing.PreferredColor = settings.PreferredColor;
-            existing.Font = settings.Font;
-            existing.Background = settings.Background;
-            existing.IconStyle = settings.IconStyle;
+            existing.preferredColor = settings.preferredColor;
+            existing.font = settings.font;
+            existing.background = settings.background;
+            existing.iconStyle = settings.iconStyle;
         }
         else
         {

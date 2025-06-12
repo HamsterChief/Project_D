@@ -1,9 +1,9 @@
 public class UserSettings
 {
-    public int Id { get; set; }
-    public string UserId { get; set; } // of int als je integer IDs gebruikt
-    public string PreferredColor { get; set; }
-    public string Font { get; set; }
-    public string Background { get; set; }
-    public string IconStyle { get; set; }
+    //public int Id { get; set; } // waarom usersetting id? kan ook id van gebruiker hergebruiken?
+    public int id { get; set; } // of int als je integer IDs gebruikt
+    public string preferredColor { get; set; }
+    public string font { get; set; }
+    public string background { get; set; }
+    public string iconStyle { get; set; }
 }

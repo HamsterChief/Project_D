@@ -34,6 +34,11 @@ public class AuthController : ControllerBase
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
+        // Add default App Settings for newly created user account
+        int userId = user.Id;
+        _context.UserSettings.Add(new UserSettings() { id = userId, preferredColor = "#7D81E1", font = "default", background = "Grey", iconStyle = "default" });
+        await _context.SaveChangesAsync();
+
         return Ok();
     }
 
@@ -52,7 +57,7 @@ public class AuthController : ControllerBase
         return Ok(new
         {
             message = "Gelukt! Bezig met inloggen...",
-            user = new { user.Id, user.Email } // Add more fields as needed
+            user = new { id = user.Id, email = user.Email } // Add more fields as needed
         });
     }
 

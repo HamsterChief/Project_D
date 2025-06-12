@@ -4,7 +4,6 @@ import { useNavigation } from '@react-navigation/native';
 import { loginStyles as styles} from '../styles/loginstyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
@@ -45,9 +44,9 @@ const LoginScreen = () => {
 
       if (response.ok) {
         const userData = await response.json();
-        await AsyncStorage.setItem('user', JSON.stringify(userData));
+        await AsyncStorage.setItem('user', JSON.stringify(userData.user));
         console.log('User data from API:', userData); // Check userID send in the state body during login
-        setUser(userData);
+        setUser(userData.user);
         
         Alert.alert('Succesvol ingelogd', 'Welkom terug!');
         navigation.navigate('Agenda');

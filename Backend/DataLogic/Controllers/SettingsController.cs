@@ -11,10 +11,10 @@ public class SettingsController : ControllerBase
         _service = service;
     }
 
-    [HttpGet("{userId}")]
-    public async Task<ActionResult<UserSettings>> GetSettings(string userId)
+    [HttpGet("{Id}")]
+    public async Task<ActionResult<UserSettings>> GetSettings(int Id)
     {
-        var settings = await _service.GetSettings(userId);
+        var settings = await _service.GetSettings(Id);
         if (settings == null)
             return NotFound();
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ImageBackground } from 'react-native';
 import {
   View,
   Text,
@@ -8,8 +9,10 @@ import {
   Button,
   Image,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { AppSettingsProps, loadAppSettings, backgrounds, loadUser } from '../Utils/AppSettingsUtils';
 
 
 const colorOptions = ['#7D81E1', '#B29DD9', '#A974BF', '#BFA6A0', '#B7C68B'];
@@ -27,203 +30,247 @@ const backgroundOptions = [
 ];
 
 const AppSettingsScreen: React.FC = () => {
-  const [selectedColor, setSelectedColor] = useState<string>(colorOptions[0]);
-  const [selectedFont, setSelectedFont] = useState<string>('default');
-  const [selectedBackground, setSelectedBackground] = useState<string>('Grey');
-
+  const [appSettings, setAppSettings] = useState<AppSettingsProps | null>(null);
+  const [userId, setUserId] = useState<number | 0>(0);
   const [fontDropdownVisible, setFontDropdownVisible] = useState<boolean>(false);
   const [backgroundDropdownVisible, setBackgroundDropdownVisible] = useState<boolean>(false);
-
   const navigation = useNavigation();
-  const userId = '1'; // Later dynamisch ophalen na inloggen
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:5133/api/settings/${userId}`)
-      .then((response) => {
-        const settings = response.data;
-        if (settings?.preferredColor) setSelectedColor(settings.preferredColor);
-        if (settings?.font) setSelectedFont(settings.font);
-        if (settings?.background) setSelectedBackground(settings.background);
-      })
-      .catch((error) => {
-        console.error('Fout bij ophalen instellingen', error);
-      });
-  }, []);
+    const fetchUserData = async () => {
+      const userData = await loadUser();
+      setUserId(userData.id);
+      const settings = await loadAppSettings(userData.id);
+      setAppSettings(settings);
+    }
+    
+    fetchUserData();
+  }, [userId]);
 
   const handleColorChange = async (color: string) => {
-    setSelectedColor(color);
+    if (!appSettings) return;
+
+    const updatedSettings = { ...appSettings, preferredColor: color };
+    setAppSettings(updatedSettings);
+
     try {
-      await axios.post('http://localhost:5133/api/settings', {
-        userId,
-        preferredColor: color,
-        font: '',
-        background: '',
-        iconStyle: '',
+      const response = await fetch('http://localhost:5133/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedSettings),
       });
-    } catch (err) {
-      console.error('Fout bij opslaan kleur', err);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Fout bij opslaan AppSettings', errorText);
+      }
+    } catch (error) {
+      console.error('Fout bij opslaan AppSettings', error);
     }
   };
 
   const handleFontChange = async (font: string) => {
-    setSelectedFont(font);
+    if (!appSettings) return;
+
+    const updatedSettings = { ...appSettings, font };
+    setAppSettings(updatedSettings);
+
     try {
-      await axios.post('http://localhost:5133/api/settings', {
-        userId,
-        preferredColor: '',
-        font: font,
-        background: '',
-        iconStyle: '',
+      const response = await fetch('http://localhost:5133/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedSettings),
       });
-    } catch (err) {
-      console.error('Fout bij opslaan lettertype', err);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Fout bij opslaan AppSettings', errorText);
+      }
+    } catch (error) {
+      console.error('Fout bij opslaan AppSettings', error);
     }
   };
 
   const handleBackgroundChange = async (background: string) => {
-    setSelectedBackground(background);
+    if (!appSettings) return;
+
+    const updatedSettings = { ...appSettings, background };
+    setAppSettings(updatedSettings);
+
     try {
-      await axios.post('http://localhost:5133/api/settings', {
-        userId,
-        preferredColor: '',
-        font: '',
-        background: background,
-        iconStyle: '',
+      const response = await fetch('http://localhost:5133/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedSettings),
       });
-    } catch (err) {
-      console.error('Fout bij opslaan achtergrond', err);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Fout bij opslaan AppSettings', errorText);
+      }
+    } catch (error) {
+      console.error('Fout bij opslaan AppSettings', error);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>App instellingen</Text>
-      
-
-      {/* Kleur selecteren */}
-      <View style={styles.colorSelector}>
-        {colorOptions.map((color) => (
-          <TouchableOpacity
-            key={color}
-            style={[
-              styles.colorCircle,
-              { backgroundColor: color },
-              selectedColor === color && styles.selectedCircle,
-            ]}
-            onPress={() => handleColorChange(color)}
-          />
-        ))}
-      </View>
-
-      <Button title="Terug" onPress={() => navigation.navigate('Agenda' as never)} />
-
-      {/* Instellingenopties */}
-      <ScrollView style={styles.optionsContainer}>
-
-        {/* Lettertype dropdown */}
-        <View>
-          <TouchableOpacity
-            style={styles.option}
-            onPress={() => setFontDropdownVisible(!fontDropdownVisible)}
-          >
-            <Image
-              source={require('../assets/lettertypeIcon.png')}
-              style={[styles.optionIcon, { tintColor: '#6A0DAD' }]}
-            />
-            <Text style={styles.optionText}>Lettertype</Text>
-          </TouchableOpacity>
-
-          {fontDropdownVisible && (
-            <View style={styles.dropdownOptions}>
-              {fontOptions.map((option) => (
-                <TouchableOpacity
-                  key={option.value}
-                  style={styles.dropdownOption}
-                  onPress={() => handleFontChange(option.value)}
-                >
-                  <Text
-                    style={[
-                      styles.dropdownText,
-                      selectedFont === option.value && styles.selectedFont,
-                    ]}
-                  >
-                    {option.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-        </View>
-
-        {/* Achtergrond dropdown */}
-        <View>
-          <TouchableOpacity
-            style={styles.option}
-            onPress={() => setBackgroundDropdownVisible(!backgroundDropdownVisible)}
-          >
-            <Image
-              source={require('../assets/backgroundIcon.png')}
-              style={[styles.optionIcon, { tintColor: '#6A0DAD' }]}
-            />
-            <Text style={styles.optionText}>Achtergrond</Text>
-          </TouchableOpacity>
-
-          {backgroundDropdownVisible && (
-            <View style={styles.backgroundDropdown}>
-              {backgroundOptions.map((option) => (
-                <TouchableOpacity
-                  key={option.value}
-                  style={styles.backgroundOption}
-                  onPress={() => handleBackgroundChange(option.value)}
-                >
-                  <Image source={option.image} style={styles.backgroundImage} />
-                  <Text
-                    style={[
-                      styles.dropdownText,
-                      selectedBackground === option.value && styles.selectedFont,
-                    ]}
-                  >
-                    {option.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-        </View>
-
-        <SettingOption label="Pictogrammen" icon={require('../assets/pictogramIcon.png')} />
-
-      </ScrollView>
-    </View>
-  );
-};
-
-const SettingOption = ({
-  label,
-  icon,
-  screen,
-}: {
-  label: string;
-  icon: any;
-  screen?: string;
-}) => {
-  const navigation = useNavigation();
-
-  return (
-    <TouchableOpacity
-      style={styles.option}
-      onPress={() => {
-        if (screen) navigation.navigate(screen as never);
-      }}
+    <ImageBackground
+          source={backgrounds[appSettings?.background || 'Grey']} // Path to your image
+          style={styles.background}
+          resizeMode="cover" // Or 'contain', depending on your design
     >
-      <Image source={icon} style={[styles.optionIcon, { tintColor: '#6A0DAD' }]} />
-      <Text style={styles.optionText}>{label}</Text>
-    </TouchableOpacity>
+      <View style={styles.container}>
+        <Text style={styles.header}>App instellingen</Text>
+        
+
+        {/* Kleur selecteren */}
+        <View style={styles.colorSelector}>
+          {colorOptions.map((color) => (
+            <TouchableOpacity
+              key={color}
+              style={[
+                styles.colorCircle,
+                { backgroundColor: color },
+                appSettings?.preferredColor === color && styles.selectedCircle,
+              ]}
+              onPress={() => handleColorChange(color)}
+            />
+          ))}
+        </View>
+
+        <Button title="Terug" onPress={() => navigation.navigate('Agenda' as never)} />
+
+        {/* Instellingenopties */}
+        <ScrollView style={styles.optionsContainer}>
+
+          {/* Lettertype dropdown */}
+          <View>
+            <TouchableOpacity
+              style={styles.option}
+              onPress={() => setFontDropdownVisible(!fontDropdownVisible)}
+            >
+              <Image
+                source={require('../assets/lettertypeIcon.png')}
+                style={[styles.optionIcon, { tintColor: appSettings?.preferredColor }]}
+              />
+              <Text style={[styles.optionText, { color: appSettings?.preferredColor }]}>Lettertype</Text>
+            </TouchableOpacity>
+
+            {fontDropdownVisible && (
+              <View style={styles.dropdownOptions}>
+                {fontOptions.map((option) => (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={styles.dropdownOption}
+                    onPress={() => handleFontChange(option.value)}
+                  >
+                    <Text
+                      style={[
+                        styles.dropdownText,
+                        appSettings?.font === option.value && styles.selectedFont,
+                        { color: appSettings?.preferredColor },
+                      ]}
+                    >
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
+
+          {/* Achtergrond dropdown */}
+          <View>
+            <TouchableOpacity
+              style={styles.option}
+              onPress={() => setBackgroundDropdownVisible(!backgroundDropdownVisible)}
+            >
+              <Image
+                source={require('../assets/backgroundIcon.png')}
+                style={[styles.optionIcon, { tintColor: appSettings?.preferredColor }]}
+              />
+              <Text style={[styles.optionText, { color: appSettings?.preferredColor }]}>Achtergrond</Text>
+            </TouchableOpacity>
+
+            {backgroundDropdownVisible && (
+              <View style={styles.backgroundDropdown}>
+                {backgroundOptions.map((option) => (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={styles.backgroundOption}
+                    onPress={() => handleBackgroundChange(option.value)}
+                  >
+                    <Image source={option.image} style={styles.backgroundImage} />
+                    <Text
+                      style={[
+                        styles.dropdownText,
+                        appSettings?.background === option.value && styles.selectedFont,
+                        { color: appSettings?.preferredColor },
+                      ]}
+                    >
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
+
+          {/* <SettingOption label="Pictogrammen" icon={require('../assets/pictogramIcon.png')} /> */}
+          <View>
+            <TouchableOpacity
+              style={styles.option}
+              onPress={() => {
+                if (screen) navigation.navigate(screen as never);
+              }}
+            >
+              <Image
+                source={require('../assets/pictogramIcon.png')}
+                style={[ styles.optionIcon, { tintColor: appSettings?.preferredColor }]}
+              />
+              <Text style={[styles.optionText, { color: appSettings?.preferredColor }]}>Pictogrammen</Text>
+            </TouchableOpacity>
+          </View>
+
+        </ScrollView>
+      </View>
+    </ImageBackground>
   );
 };
+
+// const SettingOption = ({
+//   label,
+//   icon,
+//   screen,
+// }: {
+//   label: string;
+//   icon: any;
+//   screen?: string;
+// }) => {
+//   const navigation = useNavigation();
+
+//   return (
+//     <TouchableOpacity
+//       style={styles.option}
+//       onPress={() => {
+//         if (screen) navigation.navigate(screen as never);
+//       }}
+//     >
+//       <Image source={icon} style={[styles.optionIcon, { tintColor: '#6A0DAD' }]} />
+//       <Text style={styles.optionText}>{label}</Text>
+//     </TouchableOpacity>
+//   );
+// };
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#e6f3ff', // fallback kleur als afbeelding niet laadt
+  },
   container: {
     flex: 1,
     backgroundColor: '#C6B7F5',
@@ -273,7 +320,6 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#6A0DAD',
   },
   dropdownOptions: {
     backgroundColor: '#fff',
@@ -289,7 +335,7 @@ const styles = StyleSheet.create({
   },
   selectedFont: {
     fontWeight: 'bold',
-    color: '#6A0DAD',
+    //color: '#6A0DAD', //Now uses preferredColor from AppSettings.
   },
   backgroundDropdown: {
     backgroundColor: '#fff',
