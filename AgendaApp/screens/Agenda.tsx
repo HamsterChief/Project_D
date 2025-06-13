@@ -10,6 +10,7 @@ import { Task } from '../utils/Types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Snackbar } from 'react-native-paper';
 import WeekDaysRow from '../components/WeekDaysRow';
+import { AppSettingsProps, loadAppSettings, backgrounds, loadUser } from '../utils/AppSettingsUtils';
 
 
 
@@ -25,21 +26,19 @@ const AgendaScreen = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [appSettings, setAppSettings] = useState<AppSettingsProps | null>(null);
 
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const storedUser = await AsyncStorage.getItem('user');
-        if (storedUser) {
-          const parsedUser = JSON.parse(storedUser);
-          setUserId(parsedUser.id);
-        }
-      } catch (error) {
-        console.error('Gebruiker laden fout:', error);
-      }
-    };
-    loadUser();
-  }, []);
+  const checkUser = async () => {
+    const userData = await loadUser();
+    console.warn("user in agenda:", userData)
+    setUserId(userData.id);
+    const settings = await loadAppSettings(userData.id);
+    setAppSettings(settings);
+  };
+
+  checkUser();
+}, []);
 
   const reloadTasks = async () => {
   if (!userId) return;

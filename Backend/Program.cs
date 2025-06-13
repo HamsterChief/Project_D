@@ -10,7 +10,12 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddScoped<ITaskService, TaskService>();
+        builder.Services.AddScoped<IFormService, FormService>();
 
+        builder.Services.AddHttpClient<OpenAiService>();
+        builder.Services.AddScoped<ChatService>();
+        builder.Services.AddScoped<UserSettingsService>();
+        
         builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlite("Data Source=Database.db"));
 

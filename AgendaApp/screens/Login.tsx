@@ -6,6 +6,7 @@ import { auth } from '../firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { parse } from '@babel/core';
+import { AppSettingsProps, loadAppSettings, backgrounds, loadUser } from '../utils/AppSettingsUtils';
 
 
 const LoginScreen = () => {
@@ -19,21 +20,19 @@ const LoginScreen = () => {
   const validatePassword = (password: string) => password.length >= 6;
 
   useEffect(() => {
-    const checkUser = async () => {
-      const storedUser = await AsyncStorage.getItem('user');
-      if (storedUser){
-        const parsedUser = JSON.parse(storedUser)
-        setUser(parsedUser)
-        
-        console.log()
-        navigation.reset({
-            index: 0,
-            routes: [{ name: 'Main' }],
-        });
-      }
+  const checkUser = async () => {
+    const parsedUser = await loadUser(); // gebruik de gedeelde functie
+    if (parsedUser) {
+      setUser(parsedUser);
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Main' }],
+      });
     }
-    checkUser()
-  }, [])
+  };
+
+  checkUser();
+}, []);
 
   const handleLogin = async () => {
     if (!validateEmail(email)) {
@@ -54,13 +53,10 @@ const LoginScreen = () => {
       });
 
       if (response.ok) {
-        const user = await response.json();
+        const userData = await response.json();
 
         // Sla alleen id en email op
-        await AsyncStorage.setItem('user', JSON.stringify({
-          id: user.id,
-          email: user.email,
-        }));
+        await AsyncStorage.setItem('user', JSON.stringify(userData.user));
 
         Alert.alert('Succesvol ingelogd', 'Welkom terug!');
         navigation.reset({

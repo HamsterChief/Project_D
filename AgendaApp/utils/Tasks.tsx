@@ -71,7 +71,7 @@ export const fetchTasksForDate = async (date: Date, userId: number | null) => {
   if (!userId) return [];
 
   const dateStr = getLocalDateString(date);
-  const url = `http://192.168.68.109:5133/api/task/date/${dateStr}/user/${userId}`;
+  const url = `http://localhost:5133/api/task/date/${dateStr}/user/${userId}`;
 
   try {
     const response = await fetch(url);
@@ -89,7 +89,7 @@ export const fetchTasksForDate = async (date: Date, userId: number | null) => {
 
 
 export const editTask = async (task: Task, userId: number | null) => {
-  const url = `http://192.168.68.109:5133/api/task/edit/${task.id}/user/${userId}`;
+  const url = `http://localhost:5133/api/task/edit/${task.id}/user/${userId}`;
 
  
     const response = await fetch(url, {
@@ -111,7 +111,7 @@ export const editTask = async (task: Task, userId: number | null) => {
 
 
 export const finishTask = async (task: Task, userId: number | null) => {
-  const url = `http://192.168.68.109:5133/api/task/finish/${task.id}/user/${userId}`;
+  const url = `http://localhost:5133/api/task/finish/${task.id}/user/${userId}`;
   console.log("Fetch URL:", url);
   const response = await fetch(url, {
     method: 'PUT',
@@ -132,7 +132,7 @@ export const finishTask = async (task: Task, userId: number | null) => {
 
 
 export const removeTask = async (task: Task, userId: number | null) => {
-  const response = await fetch(`http://192.168.68.109:5133/api/task/remove/${task.id}/user/${userId}`, {
+  const response = await fetch(`http://localhost:5133/api/task/remove/${task.id}/user/${userId}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',

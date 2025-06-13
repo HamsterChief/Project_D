@@ -10,8 +10,9 @@ import RegisterScreen from './screens/Register';
 import HomeScreen from './screens/Home';
 import AgendaScreen from './screens/Agenda';
 import ProfileScreen from './screens/Profile';
-import CoachScreen from './screens/Coach';
+import CoachScreen from './screens/AICoach';
 import settingsScreen from './screens/Settings';
+import AppSettingsScreen from './screens/AppSettings';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -79,6 +80,18 @@ const TabNavigator = () => (
         ),
       }}
     />
+    <Tab.Screen
+      name="Settings"
+      component={settingsScreen}
+      options={{
+        tabBarIcon: ({ focused }) => (
+          <Image
+            source={require('./assets/IconSettings.png')}
+            style={[styles.icon, { tintColor: focused ? '#333' : 'gray' }]}
+          />
+        ),
+      }}
+    />
   </Tab.Navigator>
 );
 
@@ -89,8 +102,8 @@ const App = () => {
         <Stack.Screen name="Welcome" component={WelcomeScreen}/>
         <Stack.Screen name="Login" component={LoginScreen} options={{headerShown: true, title: 'Inloggen'}}/>
         <Stack.Screen name="Register" component={RegisterScreen} options={{headerShown: true, title: 'Registreren'}}/>
-        <Stack.Screen name="Settings" component={settingsScreen} />
         <Stack.Screen name="Main" component={TabNavigator} />
+        <Stack.Screen name="AppSettings" component={AppSettingsScreen}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
