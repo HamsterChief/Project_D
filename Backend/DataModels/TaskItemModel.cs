@@ -12,6 +12,4 @@ public class TaskItem {
     public bool Finished {get; set;} = false;
 
     public int UserId {get; set;}
-
-    public User User { get; set; }
 }

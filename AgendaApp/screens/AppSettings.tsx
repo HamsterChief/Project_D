@@ -96,6 +96,7 @@ const AppSettingsScreen: React.FC = () => {
 
     const updatedSettings = { ...appSettings, background };
     setAppSettings(updatedSettings);
+    console.warn(updatedSettings.id)
 
     try {
       const response = await fetch('http://localhost:5133/api/settings', {
@@ -138,7 +139,12 @@ const AppSettingsScreen: React.FC = () => {
           ))}
         </View>
 
-        <Button title="Terug" onPress={() => navigation.navigate('Agenda' as never)} />
+        <Button
+  title="Terug"
+onPress={() =>
+  navigation.reset({index: 0, routes: [{ name: 'Main', state: {routes: [{ name: 'Settings' }],},},], })
+  }
+/>
 
         {/* Instellingenopties */}
         <ScrollView style={styles.optionsContainer}>
