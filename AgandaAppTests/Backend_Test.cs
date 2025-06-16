@@ -107,7 +107,10 @@ namespace AgandaAppTests
                 Password = "AnyPassword1!"
             };
             var loginResult = await controller.Login(loginUser);
-            Assert.True(loginResult is UnauthorizedResult || loginResult is UnauthorizedObjectResult, "Login with nonexistent user should fail");
+            Assert.True(
+                loginResult is NotFoundResult || loginResult is NotFoundObjectResult,
+                "Login with nonexistent user should return NotFound"
+            );
         }
     }
 }
