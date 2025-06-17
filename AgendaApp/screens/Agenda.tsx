@@ -13,7 +13,7 @@ import { PlusButton, fetchTasksForDate, editTask, finishTask, removeTask } from 
 import { Task } from '../utils/Types';
 import { Snackbar } from 'react-native-paper';
 import WeekDaysRow from '../components/WeekDaysRow';
-import { AppSettingsProps, loadAppSettings, backgrounds, loadUser } from '../utils/AppSettingsUtils';
+import { AppSettingsProps, loadAppSettings, backgrounds, loadUser } from '../Utils/AppSettingsUtils';
 
 
 
