@@ -7,9 +7,9 @@ import { useRoute } from '@react-navigation/native';
 import { Audio } from 'expo-av';
 import { TouchableOpacity, ActivityIndicator} from 'react-native';
 import { CreateTaskModal } from '../components/CreateTaskModal';
-import { Appointment } from '../utils/dbcon';
+import { Appointment } from './dbcon';
 import { getLocalDateString } from '../components/Calendar';
-import { Task } from '../utils/Types'
+import { Task } from './Types'
 
 
 export const PlusButton = ({
