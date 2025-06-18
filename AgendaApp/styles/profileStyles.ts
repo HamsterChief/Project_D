@@ -2,11 +2,9 @@ import { StyleSheet } from 'react-native';
 
 export const profileStyles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff8e7',
-    padding: 20,
-    alignItems: 'center',
-    paddingTop: 60,
+  flex: 1,
+  backgroundColor: 'rgba(255, 255, 255, 0.3)', // lichte overlay
+  padding: 20,
   },
   title: {
     fontSize: 28,
@@ -45,4 +43,9 @@ export const profileStyles = StyleSheet.create({
     color: '#fff',
     marginLeft: 10,
   },
+  background: {
+  flex: 1,
+  width: '100%',
+  height: '100%',
+},
 });

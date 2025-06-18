@@ -23,9 +23,10 @@ export const getLocalDateString = (date: Date) => {
   return `${year}-${month}-${day}`;
 };
 
-const Calendar = ({ selectedDate, onDateChange }: {
+const Calendar = ({ selectedDate, onDateChange, backgroundColor,}: {
   selectedDate: Date,
-  onDateChange: (date: Date) => void
+  onDateChange: (date: Date) => void,
+  backgroundColor : string
 }) => {
   const currentMonth = selectedDate.getMonth();
   const currentYear = selectedDate.getFullYear();
@@ -76,7 +77,7 @@ const Calendar = ({ selectedDate, onDateChange }: {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={prevMonth} style={styles.arrowButton}>
           <Text style={styles.arrowText}>{'<'}</Text>

@@ -6,6 +6,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { useNavigation } from '@react-navigation/native';
 import { registerstyles as styles} from '../styles/registerstyles';
+import { Snackbar } from 'react-native-paper';
 
 type RegisterScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Register'>;
 
@@ -14,10 +15,13 @@ const RegisterScreen: React.FC = () => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   const handleRegister = async () => {
     if (!email || !password) {
-      Alert.alert('Fout', 'Vul zowel e-mail als wachtwoord in.');
+      setSnackbarMessage('Vul zowel e-mail als wachtwoord in.');
+      setSnackbarVisible(true);
       return;
     }
 
@@ -31,13 +35,11 @@ const RegisterScreen: React.FC = () => {
       });
 
       if (response.ok) {
-        Alert.alert('Succes', 'Registratie gelukt!');
-        alert("aaa")
         navigation.navigate('Login');
       } else {
         const error = await response.text();
-        Alert.alert('Registratie mislukt', error);
-        alert("aaa")
+        setSnackbarMessage(`Registratie mislukt: ${error}`);
+        setSnackbarVisible(true);
       }
     } catch (err) {
       console.error('Error tijdens registratie:', err);
@@ -80,6 +82,19 @@ const RegisterScreen: React.FC = () => {
           Al een account? Inloggen
         </Text>
       </View>
+
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={4000}
+        style={{ marginBottom: 20 }}
+        action={{
+          label: 'Sluiten',
+          onPress: () => setSnackbarVisible(false),
+        }}
+      >
+        {snackbarMessage}
+      </Snackbar>
     </View>
   );
 };

@@ -7,6 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { parse } from '@babel/core';
 import { AppSettingsProps, loadAppSettings, backgrounds, loadUser } from '../utils/AppSettingsUtils';
+import { Snackbar } from 'react-native-paper';
 
 
 const LoginScreen = () => {
@@ -15,6 +16,8 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
   const [isPressed, setIsPressed] = useState(false);
   const [user, setUser] = useState();
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
   const validatePassword = (password: string) => password.length >= 6;
@@ -36,12 +39,14 @@ const LoginScreen = () => {
 
   const handleLogin = async () => {
     if (!validateEmail(email)) {
-      Alert.alert('Ongeldig e-mailadres', 'Voer een geldig e-mailadres in.');
+      setSnackbarMessage('Ongeldig e-mailadres. Voer een geldig e-mailadres in.');
+      setSnackbarVisible(true);
       return;
     }
 
     if (!validatePassword(password)) {
-      Alert.alert('Wachtwoord te kort', 'Je wachtwoord moet minstens 6 tekens bevatten.');
+      setSnackbarMessage('Je wachtwoord moet minstens 6 tekens bevatten.');
+      setSnackbarVisible(true);
       return;
     }
 
@@ -58,14 +63,16 @@ const LoginScreen = () => {
         // Sla alleen id en email op
         await AsyncStorage.setItem('user', JSON.stringify(userData.user));
 
-        Alert.alert('Succesvol ingelogd', 'Welkom terug!');
+        setSnackbarMessage('Succesvol ingelogd! Welkom terug.');
+        setSnackbarVisible(true);
         navigation.reset({
           index: 0,
           routes: [{ name: 'Main' }],
         });
       } else {
         const errorText = await response.text();
-        Alert.alert('Login mislukt', errorText || 'Onbekende fout');
+        setSnackbarMessage(errorText || 'Login mislukt. Onbekende fout.');
+        setSnackbarVisible(true);
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -110,6 +117,18 @@ const LoginScreen = () => {
         <Text style={styles.registerLink} onPress={() => navigation.navigate('Register')}>
           Geen account? Registreer hier
         </Text>
+
+        <Snackbar
+          visible={snackbarVisible}
+          onDismiss={() => setSnackbarVisible(false)}
+          duration={4000}
+          action={{
+            label: 'Sluiten',
+            onPress: () => setSnackbarVisible(false),
+          }}
+        >
+          {snackbarMessage}
+        </Snackbar>
 
       </View>
     </View>

@@ -53,7 +53,8 @@ export const CreateTaskModal: React.FC<Props> = ({ visible, onClose, userId, onS
       Alert.alert('Vul alle verplichte velden in.');
       return;
     }
-
+    
+    const offsetMs = new Date().getTimezoneOffset() * 60 * 1000;
     try {
       const response = await fetch('http://localhost:5133/api/task/create', {
         method: 'POST',
@@ -61,8 +62,8 @@ export const CreateTaskModal: React.FC<Props> = ({ visible, onClose, userId, onS
         body: JSON.stringify({
           title,
           description,
-          startDate: startDate.toISOString(),
-          endDate: endDate.toISOString(),
+          startDate: new Date(startDate.getTime() - offsetMs).toISOString(),
+          endDate: new Date(endDate.getTime() - offsetMs).toISOString(),
           userId,
         }),
         

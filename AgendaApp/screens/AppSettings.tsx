@@ -139,23 +139,6 @@ const AppSettingsScreen: React.FC = () => {
           ))}
         </View>
 
-        <Button
-  title="Terug"
-  onPress={() =>
-    navigation.reset({
-      index: 0,
-      routes: [
-        {
-          name: 'Main',
-          state: {
-            routes: [{ name: 'Settings' }],
-          },
-        },
-      ],
-    })
-  }
-/>
-
         {/* Instellingenopties */}
         <ScrollView style={styles.optionsContainer}>
 
@@ -246,6 +229,23 @@ const AppSettingsScreen: React.FC = () => {
               />
               <Text style={[styles.optionText, { color: appSettings?.preferredColor }]}>Pictogrammen</Text>
             </TouchableOpacity>
+
+            <TouchableOpacity style={styles.backButton} onPress={() =>
+                  navigation.reset({
+                    index: 0,
+                    routes: [
+                      {
+                        name: 'Main',
+                        state: {
+                          routes: [{ name: 'Settings' }],
+                        },
+                      },
+                    ],
+                  })
+                }>
+              <Text style={styles.backButtonText}>← Terug</Text>
+            </TouchableOpacity>
+            
           </View>
 
         </ScrollView>
@@ -298,6 +298,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 20,
+    marginTop: 50,
     color: '#fff',
   },
   colorSelector: {
@@ -371,6 +372,27 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     resizeMode: 'cover',
   },
+
+  backButton: {
+  paddingVertical: 10,
+  paddingHorizontal: 15,
+  backgroundColor: '#fff',
+  borderRadius: 8,
+  alignSelf: 'flex-start',
+  marginBottom: 10,
+  flexDirection: 'row',
+  alignItems: 'center',
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.2,
+  shadowRadius: 2,
+  elevation: 2,
+},
+backButtonText: {
+  fontSize: 16,
+  fontWeight: 'bold',
+  color: '#333',
+},
 });
 
 export default AppSettingsScreen;
