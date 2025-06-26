@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Pressable, Image } from 'react-native';
 import { Task } from '../utils/Types';
 import { fetchTasksForDate } from '../utils/Tasks';
+import { homeStyles } from '../styles/homeStyles';
+import { Audio } from 'expo-av';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 export const DisplayTasksInHome = ({
   date,
@@ -17,22 +21,85 @@ export const DisplayTasksInHome = ({
   onTaskPress?: (task: Task) => void;
 }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [playingTaskId, setPlayingTaskId] = useState<number | null>(null);
+  const [audioUris, setAudioUris] = useState<{ [key: number]: string }>({}); // taskId -> audio uri
 
   useEffect(() => {
     const fetch = async () => {
       const data = await fetchTasksForDate(date, userId);
       setTasks(maxCount ? data.slice(0, maxCount) : data);
+
+      // Laad audioUri's uit AsyncStorage
+      const newUris: { [key: number]: string } = {};
+      for (const task of data) {
+        const storedUri = await AsyncStorage.getItem(`audioUri_${task.id}`);
+        if (storedUri) {
+          newUris[task.id] = storedUri;
+        }
+      }
+      setAudioUris(newUris);
     };
     fetch();
   }, [date, userId, refreshToggle]);
 
-  if (tasks.length === 0) {
-    return (
-      <Text style={{ textAlign: 'center', marginVertical: 20, fontSize: 16, color: '#555' }}>
-        Je hebt momenteel geen taken. Maak er eentje aan!
-      </Text>
-    );
+  const startRecording = async (taskId: number) => {
+    const permission = await Audio.requestPermissionsAsync();
+    if (permission.status !== 'granted') {
+      alert('Microfoon toestemming is nodig!');
+      return;
+    }
+
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: true,
+      playsInSilentModeIOS: true,
+    });
+
+    const { recording } = await Audio.Recording.createAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
+    setRecording(recording);
+  };
+
+  const stopRecording = async (taskId: number) => {
+    if (!recording) return;
+    await recording.stopAndUnloadAsync();
+    const uri = recording.getURI();
+    setRecording(null);
+
+    if (uri) {
+      await AsyncStorage.setItem(`audioUri_${taskId}`, uri);
+      setAudioUris((prev) => ({ ...prev, [taskId]: uri }));
+    }
+  };
+
+  const playAudio = async (uri: string, taskId: number) => {
+  if (sound) {
+    await sound.stopAsync();
+    await sound.unloadAsync();
   }
+  const { sound: newSound } = await Audio.Sound.createAsync({ uri });
+  setSound(newSound);
+  setPlayingTaskId(taskId);
+
+  await newSound.setVolumeAsync(1.0); // 🔊 Zet volume op maximaal
+  await newSound.playAsync();
+
+  newSound.setOnPlaybackStatusUpdate((status) => {
+    if (!status.isPlaying) {
+      setPlayingTaskId(null);
+    }
+  });
+};
+
+  const toggleAudio = async (taskId: number) => {
+    if (recording) {
+      await stopRecording(taskId);
+    } else if (audioUris[taskId]) {
+      await playAudio(audioUris[taskId], taskId);
+    } else {
+      await startRecording(taskId);
+    }
+  };
 
   const formatTime = (date: Date | string) => {
     const d = typeof date === 'string' ? new Date(date) : date;
@@ -50,34 +117,50 @@ export const DisplayTasksInHome = ({
           onPress={() => onTaskPress && onTaskPress(task)}
         >
           <View style={hstyles.row}>
-            {/* Tijdlijn */}
             <View style={hstyles.timeline}>
-              {/* Starttijd */}
               <View style={hstyles.timeRow}>
                 <View style={hstyles.circle} />
                 <Text style={hstyles.timeLabel}>{formatTime(task.startDate)}</Text>
               </View>
-
-              {/* Gestippelde lijn */}
               <View style={hstyles.dotsContainer}>
                 {Array.from({ length: 10 }).map((_, i) => (
                   <View key={i} style={hstyles.dot} />
                 ))}
               </View>
-
-              {/* Eindtijd */}
               <View style={hstyles.timeRow}>
                 <View style={hstyles.circle} />
                 <Text style={hstyles.timeLabel}>{formatTime(task.endDate)}</Text>
               </View>
             </View>
 
-            {/* Taakblok */}
-            <View style={hstyles.taskBlock}>
-              <Text style={hstyles.taskTitle}>{task.title}</Text>
-              {task.description ? (
-                <Text style={hstyles.taskDescription}>{task.description}</Text>
-              ) : null}
+            <View style={homeStyles.taskBlock}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={homeStyles.taskTitle}>{task.title}</Text>
+                  {task.description && (
+                    <Text style={homeStyles.taskDescription}>{task.description}</Text>
+                  )}
+                </View>
+
+                <Pressable
+                  onPress={() => toggleAudio(task.id)}
+                  style={({ pressed }) => ({
+                    padding: 8,
+                    opacity: pressed ? 0.7 : 1,
+                  })}
+                >
+                  <Image
+                    source={
+                      recording
+                        ? require('../assets/IconSoundPlay.png')
+                        : audioUris[task.id]
+                          ? require('../assets/IconSoundPlay.png')
+                          : require('../assets/IconSoundRecord.png')
+                    }
+                    style={{ width: 24, height: 24 }}
+                  />
+                </Pressable>
+              </View>
             </View>
           </View>
         </TouchableOpacity>
@@ -88,7 +171,7 @@ export const DisplayTasksInHome = ({
 
 const hstyles = StyleSheet.create({
   taskListContainer: {
-    width: 380,
+    width: '100%',
     paddingHorizontal: 16,
   },
   row: {
@@ -123,30 +206,12 @@ const hstyles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 4,
     marginLeft: 4,
-    marginTop: -10
+    marginTop: -10,
   },
   dot: {
     width: 2,
     height: 6,
     backgroundColor: '#aaa',
     alignSelf: 'center',
-  },
-  taskBlock: {
-    flex: 1,
-    backgroundColor: '#f1f1f1',
-    padding: 12,
-    borderRadius: 8,
-    elevation: 2,
-    justifyContent: 'center',
-  },
-  taskTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  taskDescription: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 4,
   },
 });

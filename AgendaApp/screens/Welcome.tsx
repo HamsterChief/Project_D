@@ -1,14 +1,17 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import retractLogo from '../assets/retract.png'; // Zorg dat het pad klopt
 
 const WelcomeScreen = () => {
   const navigation = useNavigation();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welkom bij AgendaApp</Text>
-      <Text style={styles.subtitle}>Kies een optie om verder te gaan! </Text>
+      <Image source={retractLogo} style={styles.logo} resizeMode="contain" />
+      
+      <Text style={styles.title}>Welkom bij Retract</Text>
+      <Text style={styles.subtitle}>Kies een optie om verder te gaan!</Text>
 
       <TouchableOpacity
         style={styles.button}
@@ -21,7 +24,9 @@ const WelcomeScreen = () => {
         style={[styles.button, styles.secondaryButton]}
         onPress={() => navigation.navigate('Register')}
       >
-        <Text style={[styles.buttonText, styles.secondaryButtonText]}>Registreren</Text>
+        <Text style={[styles.buttonText, styles.secondaryButtonText]}>
+          Registreren
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -36,6 +41,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 30,
+  },
+  logo: {
+    width: 240,
+    height: 240,
+    marginBottom: 30,
+    marginTop: -300
   },
   title: {
     fontSize: 30,

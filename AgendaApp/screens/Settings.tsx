@@ -3,6 +3,8 @@ import { View, Text, Switch, FlatList, Button, StyleSheet, TextInput, TouchableO
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFormState } from 'react-dom';
+import { loadAppSettings, backgrounds, loadUser } from '../utils/AppSettingsUtils';
+import { Ionicons } from '@expo/vector-icons';
 
 type FormType = 'main' | 'password' | 'feedback' | 'bug' | 'notifications';
 // type FormItem = {
@@ -35,20 +37,20 @@ const SettingsScreen = () => {
     const [commentsEnabled, setCommentsEnabled] = useState(false);
     const [followersEnabled, setFollowersEnabled] = useState(false);
     const [weeklySummaryEnabled, setWeeklySummaryEnabled] = useState(false);
+    const [appSettings, setAppSettings] = useState(null);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const storedUser = await AsyncStorage.getItem('user');
-      if (storedUser) {
-        const userObj = JSON.parse(storedUser);
-        // THE REASON IT WORKS AS `userObj.user` AND NOT `userObj` IS BECAUSE `user`
-        //  IS WRAPPED INSIDE `userObj`
-        setUser(userObj);
-        setUserId(userObj.id);
-      }
-    };
-    fetchUser();
-  }, []);
+  const loadSettings = async () => {
+    const userData = await loadUser();
+    if (userData) {
+      setUser(userData);
+      setUserId(userData.id);
+      const settings = await loadAppSettings(userData.id);
+      setAppSettings(settings);
+    }
+  };
+  loadSettings();
+}, []);
 
   const handleError = (message: string, error?: unknown) => {
     console.error(message, error)
@@ -136,16 +138,40 @@ const SettingsScreen = () => {
 
   const renderMainMenu = () => (
     <>
-      <Button title="App instellingen" onPress={() => navigation.navigate('AppSettings')} />
-      {/* <Button title="AI coach" onPress={() => navigation.navigate('AI-Coach')} /> */}
-      <Button title="Meldingsinstellingen" onPress={() => setCurrentForm('notifications')} />
-      <Button title="Wachtwoord veranderen" onPress={() => setCurrentForm('password')} />
-      <Button title="App feedback" onPress={() => setCurrentForm('feedback')} />
-      <Button title="Bug rapporteren" onPress={() => setCurrentForm('bug')} />
-      <Button title="Terug" onPress={() => navigation.reset({index: 0, routes: [{ name: 'Main' }],
+      <Text style={styles.title}>Instellingen</Text>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AppSettings')}>
+        <Ionicons name="settings-outline" size={24} color="#fff" />
+        <Text style={styles.buttonText}>App instellingen</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={() => setCurrentForm('notifications')}>
+        <Ionicons name="notifications-outline" size={24} color="#fff" />
+        <Text style={styles.buttonText}>Meldingsinstellingen</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={() => setCurrentForm('password')}>
+        <Ionicons name="lock-closed-outline" size={24} color="#fff" />
+        <Text style={styles.buttonText}>Wachtwoord veranderen</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={() => setCurrentForm('feedback')}>
+        <Ionicons name="chatbubble-ellipses-outline" size={24} color="#fff" />
+        <Text style={styles.buttonText}>App feedback</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={() => setCurrentForm('bug')}>
+        <Ionicons name="bug-outline" size={24} color="#fff" />
+        <Text style={styles.buttonText}>Bug rapporteren</Text>
+      </TouchableOpacity>
+      {/* <Button
+  title="Terug"
+  onPress={() =>
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Main' }],
     })
   }
-/>
+/> */}
 
       {/* <Button title="Accountinstellingen" onPress={() => navigation.navigate('subsettings/AccountSettings')} /> */}
       {/* <Button title="Privacyinstellingen" onPress={() => navigation.navigate('subsettings/PrivacySettings')} /> */}
@@ -268,11 +294,12 @@ const SettingsScreen = () => {
 
   return (
     <ImageBackground
-      source={require('../assets/login.png')}
+      source={backgrounds[appSettings?.background || 'Grey']}
       style={styles.background}
       resizeMode="cover"
     >
       <View style={styles.container}>
+        
         {currentForm === 'main' && renderMainMenu()}
         {currentForm === 'notifications' && renderNotificationSettingsForm()}
         {currentForm === 'password' && renderPasswordForm()}
@@ -285,14 +312,55 @@ const SettingsScreen = () => {
 
 const styles = StyleSheet.create({
   background: { flex: 1 },
-  container: { padding: 20, justifyContent: 'center', flex: 1 },
-  title: { fontSize: 22, marginBottom: 20, fontWeight: 'bold', textAlign: 'center' },
-  input: { backgroundColor: '#fff', padding: 10, borderRadius: 8, marginBottom: 15 },
-  button: { backgroundColor: '#007AFF', padding: 15, borderRadius: 8, alignItems: 'center' },
-  buttonText: { color: '#fff', fontWeight: 'bold' },
-  cancel: { color: 'blue', marginTop: 15, textAlign: 'center' },
-  row: { flexDirection: 'row',justifyContent: 'space-between', alignItems: 'center', marginVertical: 10,},
-  label: { fontSize: 16,},
+  container: {
+    padding: 20,
+    justifyContent: 'center',
+    flex: 1,
+  },
+  title: {
+  fontSize: 22,
+  marginBottom: 80,
+  marginTop: -300,
+  fontWeight: 'bold',
+  textAlign: 'center',
+},
+  input: {
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 15,
+    color: '#000',
+  },
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#007AFF',
+    padding: 15,
+    borderRadius: 8,
+    justifyContent: 'center',
+    marginVertical: 8,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    marginLeft: 8,
+  },
+  cancel: {
+    color: 'lightblue',
+    marginTop: 15,
+    textAlign: 'center',
+    textDecorationLine: 'underline',
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  label: {
+    fontSize: 16,
+    color: '#fff',
+  },
 });
 
 export default SettingsScreen;

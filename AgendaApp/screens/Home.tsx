@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, ImageBackground } from 'react-native';
 import { homeStyles } from '../styles/homeStyles';
 import { CreateTaskModal } from '../components/CreateTaskModal';
 import { DisplayTasksInHome } from '../components/DisplayTasksInHome';
@@ -10,6 +10,7 @@ import { Task } from '../utils/Types';
 import { PlusButton, editTask, finishTask, removeTask } from '../utils/Tasks';
 import { Snackbar } from 'react-native-paper';
 import EditTaskModal from '../components/EditTaskModal';
+import { AppSettingsProps, loadAppSettings, backgrounds, loadUser } from '../utils/AppSettingsUtils';
 
 const HomeScreen = () => {
   const [userId, setUserId] = useState<number | null>(null);
@@ -24,6 +25,7 @@ const HomeScreen = () => {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [appSettings, setAppSettings] = useState<AppSettingsProps | null>(null);
 
   const today = new Date();
   const hour = today.getHours();
@@ -41,6 +43,8 @@ const HomeScreen = () => {
         if (storedUser) {
           const parsedUser = JSON.parse(storedUser);
           setUserId(parsedUser.id);
+          const settings = await loadAppSettings(parsedUser.id);
+          setAppSettings(settings);
         }
       } catch (error) {
         console.error('Gebruiker laden fout:', error);
@@ -123,7 +127,11 @@ const closeCreateTaskModal = () => {
   );
 
   return (
-    <View style={homeStyles.container}>
+    <ImageBackground
+    source={backgrounds[appSettings?.background || 'Grey']}
+    style={homeStyles.container} // of eventueel aparte stijl met flex:1
+    resizeMode="cover"
+  > 
       <Text style={homeStyles.greeting}>{greeting}</Text>
       <Text style={homeStyles.date}>{dateText}</Text>
       <View style={homeStyles.headerDivider} />
@@ -156,9 +164,9 @@ const closeCreateTaskModal = () => {
         </>
       )}
 
-      <TouchableOpacity onPress={() => navigation.navigate('Agenda')}>
+      {/* <TouchableOpacity onPress={() => navigation.navigate('Agenda')}>
         <Text style={homeStyles.linkText}>Bekijk alles</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <Snackbar
         visible={snackbarVisible}
@@ -191,7 +199,7 @@ const closeCreateTaskModal = () => {
           setSnackbarVisible(true);
         }}
       />
-    </View>
+    </ImageBackground>
   );
 };
 

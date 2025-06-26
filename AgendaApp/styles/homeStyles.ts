@@ -45,9 +45,34 @@ linkText: {
 },
 headerDivider: {
   width: '100%',             // volledige breedte
-  height: 1,                 // dunne lijn
+  height: 3,                 // dunne lijn
   backgroundColor: '#ccc',   // lichtgrijs
   marginTop: 60,
   marginBottom: 16,
 },
+taskBlock: {
+  backgroundColor: '#e0f0ff',
+  borderRadius: 10,
+  padding: 12,
+  marginVertical: 6,
+  borderColor: '#3399ff',
+  borderWidth: 1,
+  shadowColor: '#000',
+  shadowOpacity: 0.15,
+  shadowOffset: { width: 0, height: 3 },
+  shadowRadius: 5,
+  elevation: 4,
+  maxWidth: 300,
+  width: 250,  // vaste breedte, past altijd toe
+},
+  taskTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#333',
+  },
+  taskDescription: {
+    marginTop: 4,
+    fontSize: 13,
+    color: '#555',
+  },
 });

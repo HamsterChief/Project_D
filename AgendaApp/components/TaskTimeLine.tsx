@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Task } from '../utils/Types';
+import { FontAwesome } from '@expo/vector-icons';
 
 const MINUTES_IN_DAY = 1440;
 const pxPerMinute = 1.5;
@@ -8,9 +9,10 @@ const pxPerMinute = 1.5;
 interface TaskTimelineProps {
   tasks: Task[];
   onTaskPress: (task: Task) => void;
+  backgroundColor: string;
 }
 
-const TaskTimeline: React.FC<TaskTimelineProps> = ({ tasks, onTaskPress }) => {
+const TaskTimeline: React.FC<TaskTimelineProps> = ({ tasks, onTaskPress, backgroundColor }) => {
   const timelineHeight = MINUTES_IN_DAY * pxPerMinute;
   const hours = Array.from({ length: 25 }, (_, i) => i);
 
@@ -21,7 +23,7 @@ const TaskTimeline: React.FC<TaskTimelineProps> = ({ tasks, onTaskPress }) => {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ height: timelineHeight + 40 }}>
+    <ScrollView style={[styles.container, { backgroundColor }]} contentContainerStyle={{ height: timelineHeight + 40 }}>
       {hours.map(hour => (
         <View key={hour} style={[styles.hourRow, { top: hour * 60 * pxPerMinute }]}>
           <Text style={styles.timeLabel}>
@@ -38,7 +40,7 @@ const TaskTimeline: React.FC<TaskTimelineProps> = ({ tasks, onTaskPress }) => {
           const start = getMinutesFromMidnight(task.startDate);
           const end = getMinutesFromMidnight(task.endDate);
           const top = start * pxPerMinute;
-          const height = Math.max((end - start) * pxPerMinute, 20);
+          const height = Math.max((end - start) * pxPerMinute, 40); // iets groter minimum
 
           return (
             <TouchableOpacity
@@ -47,8 +49,17 @@ const TaskTimeline: React.FC<TaskTimelineProps> = ({ tasks, onTaskPress }) => {
               onPress={() => onTaskPress(task)}
               activeOpacity={0.7}
             >
-              <Text style={styles.taskTitle}>{task.title}</Text>
-              {task.description && <Text style={styles.taskDescription}>{task.description}</Text>}
+              <View style={styles.taskHeader}>
+                <Text style={styles.taskTitle}>{task.title}</Text>
+                {task.finished && (
+                  <FontAwesome name="check-circle" size={20} color="#4CAF50" style={styles.checkIcon} />
+                )}
+              </View>
+              {task.description ? (
+                <Text style={styles.taskDescription} numberOfLines={3} ellipsizeMode="tail">
+                  {task.description}
+                </Text>
+              ) : null}
             </TouchableOpacity>
           );
         })}
@@ -102,14 +113,25 @@ const styles = StyleSheet.create({
     borderColor: '#3399ff',
     borderWidth: 1,
   },
+  taskHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   taskTitle: {
     fontWeight: '700',
     fontSize: 14,
     color: '#333',
+    flex: 1,
+    paddingRight: 6,
+  },
+  checkIcon: {
+    marginLeft: 6,
   },
   taskDescription: {
     color: '#555',
     fontSize: 12,
+    marginTop: 4,
   },
 });
 

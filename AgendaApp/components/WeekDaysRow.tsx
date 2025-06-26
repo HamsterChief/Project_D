@@ -1,23 +1,36 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { getDayButtonColor } from '../utils/getoverlayColor';
+import { loadAppSettings, AppSettingsProps, loadUser } from '../utils/AppSettingsUtils';
 
 const WEEKDAGEN_VOLLEDIG = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo'];
 
 type WeekDaysRowProps = {
-  selectedDate: Date,
-  onDateChange: (date: Date) => void,
+  selectedDate: Date;
+  onDateChange: (date: Date) => void;
 };
 
 const WeekDaysRow = ({ selectedDate, onDateChange }: WeekDaysRowProps) => {
-  // Bepaal maandag van de week van selectedDate
-  const dayOfWeek = selectedDate.getDay(); // 0 (zo) t/m 6 (za)
-  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // als zondag 0, dan vorige maandag = -6 dagen
+  const [background, setBackground] = useState<string | undefined>('Grey');
+  
 
-  // Start van de week (maandag)
+  useEffect(() => {
+  const loadSettings = async () => {
+    const user = await loadUser();
+    if (user?.id) {
+      const settings: AppSettingsProps | null = await loadAppSettings(user.id);
+      setBackground(settings?.background);
+    }
+  };
+  loadSettings();
+}, []);
+
+  const dayOfWeek = selectedDate.getDay(); // 0 (zo) t/m 6 (za)
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+
   const monday = new Date(selectedDate);
   monday.setDate(selectedDate.getDate() + mondayOffset);
 
-  // Maak array van 7 dagen (ma t/m zo)
   const weekDays = [];
   for (let i = 0; i < 7; i++) {
     const d = new Date(monday);
@@ -39,10 +52,15 @@ const WeekDaysRow = ({ selectedDate, onDateChange }: WeekDaysRowProps) => {
       <View style={styles.container}>
         {weekDays.map((day, index) => {
           const isSelected = isSameDay(day, selectedDate);
+          const bgColor = getDayButtonColor(background, isSelected);
+
           return (
             <TouchableOpacity
               key={index}
-              style={[styles.dayButton, isSelected && styles.selectedDay]}
+              style={[
+                styles.dayButton,
+                { backgroundColor: bgColor }
+              ]}
               onPress={() => onDateChange(day)}
             >
               <Text style={[styles.dayNumber, isSelected && styles.selectedDayText]}>
@@ -82,10 +100,6 @@ const styles = StyleSheet.create({
     borderRadius: ITEM_WIDTH / 2,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff8e7',  // zelfde als container achtergrond
-  },
-  selectedDay: {
-    backgroundColor: '#3399ff',
   },
   dayNumber: {
     fontSize: 18,
